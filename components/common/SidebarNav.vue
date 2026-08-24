@@ -4,14 +4,14 @@
     class="relative bg-ops-surface border-r border-ops-border flex flex-col justify-between select-none shrink-0 h-[calc(100vh-2.75rem)] sticky top-11 transition-[width] duration-150 ease-out"
   >
     <!-- Top Toggle Bar -->
-    <div class="px-2 py-1.5 border-b border-ops-border flex items-center justify-between bg-ops-subtle">
-      <div v-if="!isCollapsed" class="text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim px-1 truncate">
+    <div class="px-2.5 py-1.5 h-8 border-b border-ops-border flex items-center justify-between bg-ops-subtle">
+      <div v-if="!isCollapsed" class="text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim px-0.5 truncate">
         Subsystems
       </div>
       <button
         @click="toggleCollapse"
-        class="p-1 hover:bg-ops-surface-hover rounded text-ops-text-dim hover:text-ops-text-bright font-mono text-xs transition mx-auto"
-        :class="isCollapsed ? 'w-full text-center' : ''"
+        class="p-1 hover:bg-ops-surface-hover rounded text-ops-text-dim hover:text-ops-text-bright font-mono text-xs transition flex items-center justify-center"
+        :class="isCollapsed ? 'w-full' : 'ml-auto'"
         :title="isCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'"
       >
         <span v-if="isCollapsed">⇥</span>
