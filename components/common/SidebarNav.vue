@@ -123,6 +123,62 @@
             v-if="!isCollapsed && item.badge !== undefined"
             :class="[
               'text-2xs px-1.5 py-0.2 rounded font-mono font-bold shrink-0',
+              'bg-ops-canvas text-ops-blue-glow border border-ops-border'
+            ]"
+          >
+            {{ item.badge }}
+          </span>
+
+          <!-- Collapsed View Badge Dot Indicator -->
+          <span
+            v-if="isCollapsed && item.badge !== undefined"
+            class="absolute top-1 right-1 w-2 h-2 rounded-full bg-ops-blue"
+          />
+        </NuxtLink>
+      </div>
+
+      <!-- Section 3: Communications & Operator Workspace -->
+      <div class="space-y-1 pt-2 border-t border-ops-border">
+        <div
+          v-if="!isCollapsed"
+          class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim flex items-center gap-1 truncate"
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+          <span class="truncate">Workspace & Chat</span>
+        </div>
+
+        <NuxtLink
+          v-for="item in commsNavItems"
+          :key="item.path"
+          :to="item.path"
+          :title="`${item.code} - ${item.label}`"
+          :class="[
+            'flex items-center rounded text-xs font-mono transition group relative',
+            isCollapsed
+              ? 'justify-center p-2'
+              : 'justify-between px-2.5 py-1.5',
+            isActive(item.path)
+              ? 'bg-ops-blue/15 text-ops-text-bright font-semibold border-l-2 border-ops-blue'
+              : 'text-ops-text-dim hover:bg-ops-surface-hover hover:text-ops-text-bright border-l-2 border-transparent'
+          ]"
+        >
+          <div class="flex items-center gap-2 min-w-0">
+            <span
+              :class="[
+                'font-mono font-bold text-2xs transition',
+                isActive(item.path) ? 'text-ops-blue-glow' : 'opacity-60 group-hover:opacity-100'
+              ]"
+            >
+              {{ item.code }}
+            </span>
+            <span v-if="!isCollapsed" class="truncate">{{ item.label }}</span>
+          </div>
+
+          <!-- Full View Badge -->
+          <span
+            v-if="!isCollapsed && item.badge !== undefined"
+            :class="[
+              'text-2xs px-1.5 py-0.2 rounded font-mono font-bold shrink-0',
               item.isAdminBadge
                 ? 'bg-ops-canvas text-ops-text-dim border border-ops-border'
                 : 'bg-ops-canvas text-ops-blue-glow border border-ops-border'
@@ -194,6 +250,7 @@ import { useEventsStore } from '~/stores/events';
 import { useIssuesStore } from '~/stores/issues';
 import { useShopStore } from '~/stores/shop';
 import { useServersStore } from '~/stores/servers';
+import { useNotificationsStore } from '~/stores/notifications';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -201,6 +258,7 @@ const eventsStore = useEventsStore();
 const issuesStore = useIssuesStore();
 const shopStore = useShopStore();
 const serversStore = useServersStore();
+const notificationsStore = useNotificationsStore();
 
 const isCollapsed = ref(false);
 const sidebarWidth = ref(224);
@@ -269,19 +327,33 @@ const contentNavItems = computed(() => [
   { code: '06', label: 'Audit Trail', path: '/audit' },
 ]);
 
-const infraNavItems = computed(() => {
+const infraNavItems = computed(() => [
+  {
+    code: '07',
+    label: 'Game Servers',
+    path: '/servers',
+    badge: `${serversStore.fleetSummary.onlineServers}/${serversStore.fleetSummary.totalServers}`,
+  },
+]);
+
+const commsNavItems = computed(() => {
   const items = [
     {
-      code: '07',
-      label: 'Game Servers',
-      path: '/servers',
-      badge: `${serversStore.fleetSummary.onlineServers}/${serversStore.fleetSummary.totalServers}`,
+      code: '08',
+      label: 'Discuss Hub',
+      path: '/discuss',
+    },
+    {
+      code: '09',
+      label: 'Operator Inbox',
+      path: '/inbox',
+      badge: notificationsStore.unreadCount || undefined,
     },
   ];
 
   if (authStore.isAdmin) {
     items.push({
-      code: '08',
+      code: '10',
       label: 'Operator Accounts',
       path: '/admin/users',
       badge: 'ADMIN',

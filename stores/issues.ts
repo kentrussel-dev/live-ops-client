@@ -111,6 +111,34 @@ export const useIssuesStore = defineStore('issues', () => {
     }
   }
 
+  async function assignIssue(issueId: string, assignedTo: string, note?: string): Promise<boolean> {
+    const toast = useToast();
+    try {
+      const api = useApi();
+      const res = await api.post(`/issues/${issueId}/assign`, {
+        assignedTo,
+        note,
+      });
+
+      if (res.success && res.data?.issue) {
+        const index = issues.value.findIndex((i) => i._id === issueId);
+        if (index !== -1) {
+          issues.value[index] = res.data.issue;
+        }
+        if (selectedIssue.value?._id === issueId) {
+          selectedIssue.value = res.data.issue;
+        }
+        toast.success('Assignee Updated', `[${res.data.issue.ticketKey}] assigned to @${assignedTo}.`);
+        await fetchIssues();
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      toast.error('Assignment Failed', err.message);
+      return false;
+    }
+  }
+
   async function transitionStatus(issueId: string, targetStatus: IssueStatus, note?: string, resolutionNotes?: string): Promise<boolean> {
     const toast = useToast();
     try {
@@ -129,7 +157,7 @@ export const useIssuesStore = defineStore('issues', () => {
         if (selectedIssue.value?._id === issueId) {
           selectedIssue.value = res.data.issue;
         }
-        toast.success('Pipeline Stage Updated', res.data.message);
+        toast.success('Pipeline Stage Updated', `Moved to ${targetStatus}`);
         await fetchIssues(); // Refresh stats
         return true;
       }
@@ -147,9 +175,9 @@ export const useIssuesStore = defineStore('issues', () => {
       const res = await api.post(`/issues/${issueId}/notes`, { note: noteText });
       if (res.success && res.data) {
         const issue = issues.value.find((i) => i._id === issueId);
-        if (issue) issue.internalNotes = res.data.notes;
+        if (issue) issue.internalNotes = res.data.issue.internalNotes;
         if (selectedIssue.value?._id === issueId) {
-          selectedIssue.value.internalNotes = res.data.notes;
+          selectedIssue.value.internalNotes = res.data.issue.internalNotes;
         }
         toast.success('Internal Note Added', 'Telemetry log updated.');
         return true;
@@ -204,6 +232,7 @@ export const useIssuesStore = defineStore('issues', () => {
     fetchIssues,
     fetchIssueById,
     updateIssue,
+    assignIssue,
     transitionStatus,
     addNote,
     createIssue,

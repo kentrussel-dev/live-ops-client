@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 select-none">
+  <div class="space-y-4 select-none font-sans">
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-ops-border">
       <div>
@@ -66,7 +66,7 @@
         </div>
 
         <div class="p-2 space-y-2 flex-1 overflow-y-auto">
-          <!-- Drop Indicator when hovering over empty zone -->
+          <!-- Drop Indicator -->
           <div
             v-if="activeDropZone === 'reported' && draggedTicket?.status !== 'reported'"
             class="p-3 border-2 border-dashed border-ops-blue/60 bg-ops-blue/10 rounded text-center text-2xs font-mono text-ops-blue-glow animate-pulse"
@@ -97,8 +97,9 @@
             </div>
             <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-ops-text-dim flex items-center justify-between pt-1 border-t border-ops-border/40">
-              <span>{{ ticket.category }}</span>
-              <span>{{ ticket.affectedCluster || 'Global' }}</span>
+              <span class="truncate">{{ ticket.category }}</span>
+              <span v-if="ticket.assignedTo" class="text-ops-blue-glow font-semibold truncate">@{{ getAssigneeName(ticket.assignedTo) }}</span>
+              <span v-else class="text-ops-text-dark">Unassigned</span>
             </div>
           </div>
 
@@ -162,7 +163,8 @@
             <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-ops-text-dim flex items-center justify-between pt-1 border-t border-ops-border/40">
               <span class="text-blue-300">In Triage</span>
-              <span>{{ ticket.internalNotes?.length || 0 }} note(s)</span>
+              <span v-if="ticket.assignedTo" class="text-ops-blue-glow font-semibold truncate">@{{ getAssigneeName(ticket.assignedTo) }}</span>
+              <span v-else class="text-ops-text-dark">Unassigned</span>
             </div>
           </div>
 
@@ -224,8 +226,9 @@
               </div>
             </div>
             <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
-            <div class="text-2xs font-mono text-purple-300 pt-1 border-t border-ops-border/40">
-              Ready for QA Verification
+            <div class="text-2xs font-mono text-purple-300 pt-1 border-t border-ops-border/40 flex items-center justify-between">
+              <span>Ready for QA</span>
+              <span v-if="ticket.assignedTo" class="text-ops-blue-glow font-semibold truncate">@{{ getAssigneeName(ticket.assignedTo) }}</span>
             </div>
           </div>
 
@@ -287,8 +290,9 @@
               </div>
             </div>
             <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
-            <div class="text-2xs font-mono text-emerald-600 dark:text-emerald-400 pt-1 border-t border-ops-border/40 flex items-center gap-1">
-              <span>Signed off for release</span>
+            <div class="text-2xs font-mono text-emerald-600 dark:text-emerald-400 pt-1 border-t border-ops-border/40 flex items-center justify-between">
+              <span>Signed off</span>
+              <span v-if="ticket.assignedTo" class="text-ops-blue-glow font-semibold truncate">@{{ getAssigneeName(ticket.assignedTo) }}</span>
             </div>
           </div>
 
@@ -317,6 +321,13 @@ const activeDropZone = ref<IssueStatus | null>(null);
 onMounted(async () => {
   await issuesStore.fetchIssues();
 });
+
+function getAssigneeName(assignedTo: any): string {
+  if (typeof assignedTo === 'object' && assignedTo) {
+    return assignedTo.username || 'assigned';
+  }
+  return String(assignedTo);
+}
 
 function handleDragStart(event: DragEvent, ticket: IIssueTicket) {
   draggedTicket.value = ticket;

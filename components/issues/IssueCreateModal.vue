@@ -83,13 +83,21 @@
             </select>
           </div>
           <div>
-            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Affected Version</label>
-            <input
-              v-model="form.affectedVersion"
-              type="text"
-              placeholder="e.g. v2.4.0"
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Assignee</label>
+            <select
+              v-model="form.assignedTo"
               class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 font-mono text-xs text-ops-text-bright"
-            />
+            >
+              <option value="">Unassigned</option>
+              <option :value="authStore.user?.username">Assign to Me (@{{ authStore.user?.username }})</option>
+              <option
+                v-for="op in operatorsList"
+                :key="op._id"
+                :value="op.username"
+              >
+                @{{ op.username }} ({{ op.department }})
+              </option>
+            </select>
           </div>
         </div>
 
@@ -135,12 +143,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useIssuesStore } from '~/stores/issues';
+import { useAuthStore } from '~/stores/auth';
 
 const issuesStore = useIssuesStore();
+const authStore = useAuthStore();
 
 const reproStepsText = ref('');
+const operatorsList = ref<any[]>([]);
 
 const form = ref<any>({
   ticketKey: `ISSUE-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -151,6 +162,19 @@ const form = ref<any>({
   status: 'reported',
   affectedCluster: 'Global',
   affectedVersion: 'v2.4.0',
+  assignedTo: authStore.user?.username || '',
+});
+
+onMounted(async () => {
+  try {
+    const api = useApi();
+    const res = await api.get('/auth/users');
+    if (res.success && res.data) {
+      operatorsList.value = res.data.users || [];
+    }
+  } catch (err) {
+    console.error('[Failed to load operators for assignee selector]:', err);
+  }
 });
 
 async function handleSubmit() {

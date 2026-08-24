@@ -159,10 +159,39 @@
           </div>
         </div>
 
-        <!-- Classification & Targeting Parameters -->
+        <!-- Classification & Assignee Parameters -->
         <div class="bg-ops-surface border border-ops-border rounded-lg p-4 space-y-3 text-xs">
           <div class="text-2xs font-mono uppercase text-ops-text-dim pb-1 border-b border-ops-border/60">
-            Ticket Classification
+            Ticket Classification & Assignment
+          </div>
+
+          <!-- Assignee Selector Dropdown -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim">Assigned Operator</label>
+              <button
+                v-if="authStore.canEdit && authStore.user"
+                type="button"
+                @click="form.assignedTo = authStore.user.username"
+                class="text-3xs font-mono text-ops-blue-glow hover:underline"
+              >
+                Assign to Me
+              </button>
+            </div>
+            <select
+              v-model="form.assignedTo"
+              :disabled="!authStore.canEdit"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue disabled:opacity-60"
+            >
+              <option value="">Unassigned</option>
+              <option
+                v-for="op in operatorsList"
+                :key="op._id"
+                :value="op.username"
+              >
+                @{{ op.username }} ({{ op.department }})
+              </option>
+            </select>
           </div>
 
           <div>
@@ -211,28 +240,15 @@
             </select>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Build Version</label>
-              <input
-                v-model="form.affectedVersion"
-                type="text"
-                :disabled="!authStore.canEdit"
-                placeholder="v2.4.0"
-                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue disabled:opacity-60"
-              />
-            </div>
-
-            <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Assigned To</label>
-              <input
-                v-model="form.assignedTo"
-                type="text"
-                :disabled="!authStore.canEdit"
-                placeholder="ops_lead"
-                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue disabled:opacity-60"
-              />
-            </div>
+          <div>
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Build Version</label>
+            <input
+              v-model="form.affectedVersion"
+              type="text"
+              :disabled="!authStore.canEdit"
+              placeholder="v2.4.0"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue disabled:opacity-60"
+            />
           </div>
         </div>
 
@@ -248,29 +264,30 @@
               v-model="newNoteText"
               rows="2"
               placeholder="Add internal engineering or QA observation..."
-              class="w-full bg-ops-obsidian border border-ops-border rounded p-2 text-xs text-ops-text-bright font-mono focus:border-ops-blue outline-none resize-none"
+              class="w-full bg-ops-obsidian border border-ops-border rounded p-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans resize-none"
             />
             <button
+              type="button"
               @click="handleAddNote"
               :disabled="!newNoteText.trim()"
-              class="w-full py-1.5 bg-ops-obsidian hover:bg-ops-subtle border border-ops-border text-ops-blue-glow hover:text-white font-mono text-2xs font-bold rounded transition disabled:opacity-40"
+              class="w-full py-1 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright text-xs font-mono rounded transition disabled:opacity-50"
             >
-              + Post Investigation Note
+              Append Note
             </button>
           </div>
 
-          <!-- Notes Stream -->
-          <div class="space-y-2 max-h-60 overflow-y-auto pt-1">
+          <!-- Notes Stream Timeline -->
+          <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
             <div
               v-for="(n, idx) in reversedNotes"
               :key="idx"
-              class="p-2.5 bg-ops-obsidian rounded border border-ops-border text-2xs font-mono space-y-1"
+              class="p-2.5 bg-ops-obsidian rounded border border-ops-border text-2xs space-y-1 font-mono"
             >
               <div class="flex items-center justify-between text-ops-text-dim">
-                <span class="text-ops-blue-glow font-bold">{{ n.author }} ({{ n.authorRole }})</span>
-                <span>{{ formatShortDate(n.timestamp) }}</span>
+                <span class="font-bold text-ops-blue-glow">@{{ n.author }} ({{ n.authorRole }})</span>
+                <span class="text-3xs">{{ formatTime(n.timestamp) }}</span>
               </div>
-              <p class="text-ops-text-base leading-relaxed">{{ n.note }}</p>
+              <p class="text-ops-text-bright whitespace-pre-wrap font-sans text-xs">{{ n.note }}</p>
             </div>
           </div>
         </div>
@@ -285,7 +302,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useIssuesStore } from '~/stores/issues';
 import { useAuthStore } from '~/stores/auth';
 import { useToast } from '~/composables/useToast';
-import { useTimeFormat } from '~/composables/useTimeFormat';
+import { format } from 'date-fns';
 import type { IssueStatus, IssueSeverity, IssueCategory, ServerCluster, IIssueInternalNote } from '../../../shared/types';
 
 const route = useRoute();
@@ -293,12 +310,12 @@ const router = useRouter();
 const issuesStore = useIssuesStore();
 const authStore = useAuthStore();
 const toast = useToast();
-const { formatShortDate } = useTimeFormat();
 
-const issueId = String(route.params.id);
+const issueId = route.params.id as string;
 const isLoading = ref(true);
 const isSaving = ref(false);
 const newNoteText = ref('');
+const operatorsList = ref<any[]>([]);
 
 const form = reactive({
   _id: '',
@@ -327,6 +344,14 @@ const availableStages = [
 ];
 
 onMounted(async () => {
+  try {
+    const api = useApi();
+    const res = await api.get('/auth/users');
+    if (res.success && res.data) {
+      operatorsList.value = res.data.users || [];
+    }
+  } catch (_) {}
+
   const issue = await issuesStore.fetchIssueById(issueId);
   if (issue) {
     form._id = issue._id;
@@ -338,7 +363,7 @@ onMounted(async () => {
     form.status = issue.status;
     form.affectedCluster = (issue.affectedCluster || 'Global') as ServerCluster;
     form.affectedVersion = issue.affectedVersion || '';
-    form.assignedTo = issue.assignedTo || '';
+    form.assignedTo = (typeof issue.assignedTo === 'object' && issue.assignedTo ? (issue.assignedTo as any).username : issue.assignedTo) || '';
     form.reproductionSteps = [...(issue.reproductionSteps || [])];
     form.resolutionNotes = issue.resolutionNotes || '';
     form.reportedBy = issue.reportedBy || '';
@@ -360,6 +385,14 @@ function removeReproductionStep(index: number) {
 
 function handleQuickStage(newStatus: IssueStatus) {
   form.status = newStatus;
+}
+
+function formatTime(ts: string) {
+  try {
+    return format(new Date(ts), 'yyyy-MM-dd HH:mm');
+  } catch (_) {
+    return ts;
+  }
 }
 
 async function handleSave() {
