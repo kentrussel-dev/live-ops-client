@@ -350,6 +350,7 @@
                 v-for="msg in group.messages"
                 :id="'msg-' + msg._id"
                 :key="msg._id"
+                @mouseleave="handleBubbleMouseLeave(msg._id)"
                 class="relative group/bubble flex flex-col items-start gap-0.5 transition-all duration-300 rounded-lg p-0.5"
               >
                 <!-- Quoted Reply Line (Above Message Bubble - Matching Image) -->
@@ -397,7 +398,12 @@
 
                   <!-- Floating Action Bar: 6 Mandatory Emotes + (+) More Picker Button + (↩) Reply Button -->
                   <div
-                    class="absolute -top-3.5 right-0 sm:right-1 opacity-0 group-hover/bubble:opacity-100 transition-all duration-150 bg-ops-surface/95 backdrop-blur-md border border-ops-border rounded-full shadow-xl px-2 py-0.5 flex items-center gap-1.5 z-30 pointer-events-none group-hover/bubble:pointer-events-auto whitespace-nowrap"
+                    :class="[
+                      'absolute -top-3.5 right-0 sm:right-1 transition-all duration-150 bg-ops-surface/95 backdrop-blur-md border border-ops-border rounded-full shadow-xl px-2 py-0.5 flex items-center gap-1.5 z-30 whitespace-nowrap',
+                      activeEmojiPickerKey === 'action-' + msg._id
+                        ? 'opacity-100 pointer-events-auto'
+                        : 'opacity-0 group-hover/bubble:opacity-100 pointer-events-none group-hover/bubble:pointer-events-auto'
+                    ]"
                   >
                     <!-- 1. Thumbs up (👍) -->
                     <button
@@ -465,19 +471,21 @@
                     <div class="relative">
                       <button
                         type="button"
-                        @click.stop="toggleEmojiPicker(msg._id)"
+                        @click.stop="toggleEmojiPicker('action-' + msg._id)"
                         class="w-5 h-5 rounded-full bg-ops-obsidian hover:bg-ops-blue hover:text-white border border-ops-border text-ops-text-dim text-2xs font-mono font-bold flex items-center justify-center transition"
                         title="7. Open All Emotes Picker (+)"
                       >
                         +
                       </button>
 
-                      <!-- Full Emoji Picker Popover for this Message -->
+                      <!-- Full Emoji Picker Popover for this Message (Dynamic Smart Viewport Positioning) -->
                       <ChatEmojiPickerPopover
-                        v-if="activeEmojiPickerMessageId === msg._id"
+                        v-if="activeEmojiPickerKey === 'action-' + msg._id"
                         :is-open="true"
+                        placement="auto"
+                        align="auto"
                         @select="(emoji) => handleEmojiPickerSelect(msg._id, emoji)"
-                        @close="activeEmojiPickerMessageId = null"
+                        @close="activeEmojiPickerKey = null"
                       />
                     </div>
 
@@ -536,26 +544,6 @@
                     <span>{{ react.reaction }}</span>
                     <span>{{ react.users.length }}</span>
                   </button>
-
-                  <!-- Small '+' Button to Add Reaction -->
-                  <div class="relative">
-                    <button
-                      type="button"
-                      @click.stop="toggleEmojiPicker(msg._id)"
-                      class="w-5 h-5 rounded-full bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-dim hover:text-ops-text-bright text-3xs font-mono font-bold flex items-center justify-center transition"
-                      title="Add reaction (+)"
-                    >
-                      +
-                    </button>
-
-                    <!-- Popover if opened via '+' on badge row -->
-                    <ChatEmojiPickerPopover
-                      v-if="activeEmojiPickerMessageId === msg._id"
-                      :is-open="true"
-                      @select="(emoji) => handleEmojiPickerSelect(msg._id, emoji)"
-                      @close="activeEmojiPickerMessageId = null"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -780,7 +768,7 @@ const showStartDmModal = ref(false);
 const operatorSearchQuery = ref('');
 const newChannelName = ref('');
 const newChannelDescription = ref('');
-const activeEmojiPickerMessageId = ref<string | null>(null);
+const activeEmojiPickerKey = ref<string | null>(null);
 const showComposerEmojiPicker = ref(false);
 const activeReplyTarget = ref<{
   messageId: string;
@@ -1103,17 +1091,23 @@ function handleQuickReact(messageId: string, emoji: string) {
   chatStore.toggleReaction(messageId, emoji);
 }
 
-function toggleEmojiPicker(messageId: string) {
-  if (activeEmojiPickerMessageId.value === messageId) {
-    activeEmojiPickerMessageId.value = null;
+function toggleEmojiPicker(key: string) {
+  if (activeEmojiPickerKey.value === key) {
+    activeEmojiPickerKey.value = null;
   } else {
-    activeEmojiPickerMessageId.value = messageId;
+    activeEmojiPickerKey.value = key;
+  }
+}
+
+function handleBubbleMouseLeave(messageId: string) {
+  if (activeEmojiPickerKey.value === 'action-' + messageId) {
+    activeEmojiPickerKey.value = null;
   }
 }
 
 function handleEmojiPickerSelect(messageId: string, emoji: string) {
   chatStore.toggleReaction(messageId, emoji);
-  activeEmojiPickerMessageId.value = null;
+  activeEmojiPickerKey.value = null;
 }
 
 function handleComposerEmojiSelect(emoji: string) {
