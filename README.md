@@ -1,18 +1,20 @@
 # Aetheria Live-Ops Console (Frontend)
 
-A web-based mission control console for live-ops producers, game designers, and infrastructure reliability engineers. Built with Nuxt 3, Vue 3, Tailwind CSS, and Pinia.
+A web-based mission control console for live-ops producers, game designers, SREs, and QA leads. Built with Nuxt 3, Vue 3, Tailwind CSS, Pinia, and Socket.IO.
 
 ---
 
 ## Core Capabilities
 
 - **Multi-Track Synchronized Schedule Matrix**: High-density operational calendar aggregating live events, maintenance windows, build rollouts, and flash discounts across customizable time ranges (24 hours, 7 days, 30 days).
-- **Live Event Orchestration**: Schedule recurring in-game events, configure experience/drop rate bonuses, and apply player segment targeting rules.
-- **Structured Patch Deployment**: Manage client/server build alignments, configure scheduled maintenance lockouts, and inspect version diff histories.
-- **Virtual Economy & Flash Sales**: Coordinate store catalog rotations, adjust currency pricing, and set global purchase quotas.
-- **Incident Response & Known Issues**: Triage active gameplay blockers, track cluster impact, and maintain private developer notes.
-- **Dedicated Game Server Fleet Telemetry**: Real-time infrastructure monitoring displaying concurrent player loads (CCU), tick rates, network latency, CPU/memory consumption, and traffic draining controls.
-- **Operator Access Control**: Role-based interface gating for Admins, Live-Ops Editors, and Read-Only QA Viewers with complete audit log visibility.
+- **Real-Time Discuss Hub (`/discuss`)**: Full-screen communication workspace featuring public channels, direct messages with online presence indicators, themed message bubble cards, and real-time delivery receipts (`✓` delivered, `✓✓` seen).
+- **Unified Operator Inbox & Notification Popover (`/inbox`)**: Header notification dropdown (`💬`) and centralized inbox streaming assigned tickets, mentions, and system alerts with 1-click deep-linking.
+- **Incident Response & Universal Ticket Assignment (`/issues`)**: 4-stage Kanban bug pipeline with dynamic operator assignee selection ("Assign to Me"), automated push notifications, and Kanban card assignee tags.
+- **Dedicated Game Server Fleet Telemetry (`/servers`)**: Real-time infrastructure monitoring displaying concurrent player loads (CCU), tick rates, network latency, CPU/memory consumption, and traffic draining controls.
+- **Live Event Orchestration (`/events`)**: Schedule recurring in-game events, configure experience/drop rate bonuses, and apply player segment targeting rules.
+- **Structured Patch Deployment (`/patches`)**: Manage client/server build alignments, configure scheduled maintenance lockouts, and inspect version diff histories.
+- **Virtual Economy & Flash Sales (`/shop`)**: Coordinate store catalog rotations, adjust currency pricing, and execute batch promotion flash sales.
+- **8 Custom Telemetry Theme Palettes**: Dark & Light mode support across Tech-Slate, Emerald, Cyberpunk Rose, and Amethyst palettes with persistent local storage.
 
 ---
 
@@ -20,10 +22,11 @@ A web-based mission control console for live-ops producers, game designers, and 
 
 - **Framework**: Nuxt 3 (SSR and Single Page Application routing)
 - **UI Component Engine**: Vue 3 with Composition API (`<script setup>`)
-- **State Management**: Pinia stores with persistent cookie synchronization
-- **Design System**: Tailwind CSS with custom dark mode interface
-- **Date Calculation**: `date-fns`
-- **Testing**: Vitest with `@vue/test-utils` and JSDOM
+- **Real-Time Gateway**: `socket.io-client` (WebSocket connection with JWT handshake)
+- **State Management**: Pinia stores with reactive state and persistent session synchronization
+- **Design System**: Tailwind CSS with custom 8-theme design token engine
+- **Date Utilities**: `date-fns`
+- **Testing**: Vitest with `@vue/test-utils` and JSDOM (**16 test suites**)
 
 ---
 
@@ -32,15 +35,7 @@ A web-based mission control console for live-ops producers, game designers, and 
 ### Prerequisites
 
 - Node.js (v18.0.0 or higher)
-- Backend REST API running at `http://localhost:4000`
-
-### Environment Setup
-
-Create a `.env` file in the client directory based on `.env.example`:
-
-```env
-NUXT_PUBLIC_API_BASE=http://localhost:4000/api/v1
-```
+- Backend REST API & Socket.IO running at `http://localhost:4000`
 
 ### Installation
 
@@ -69,6 +64,7 @@ npm run preview
 ### Running Tests
 
 ```bash
+# Run all 16 client tests
 npm run test
 ```
 
@@ -79,5 +75,5 @@ npm run test
 | Role | Permissions |
 | :--- | :--- |
 | **Admin** | Full system control: provision server nodes, drain traffic, create operator accounts, audit logs. |
-| **Live-Ops Editor** | Manage content operations: create/edit events, publish patch notes, adjust shop items, and resolve tickets. |
-| **Read-Only Viewer** | Audit and inspection access across all operational matrices and telemetry dashboards. |
+| **Live-Ops Editor** | Manage content operations: create/edit events, publish patch notes, adjust shop items, assign tickets, and communicate in discuss channels. |
+| **Read-Only Viewer** | Audit and inspection access across all operational matrices, telemetry dashboards, and inbox feeds. |
