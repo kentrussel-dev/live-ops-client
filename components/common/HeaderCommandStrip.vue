@@ -5,7 +5,7 @@
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
         <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase">Aetheria Ops</span>
-        <span class="text-xs px-1.5 py-0.2 font-mono bg-ops-canvas text-ops-text-dim border border-ops-border rounded text-2xs">PROD</span>
+        <span class="text-xs px-1.5 py-0.2 font-mono bg-ops-canvas text-ops-text-dim border border-ops-border rounded text-2xs uppercase">{{ runtimeEnvShort }}</span>
       </div>
 
       <div class="h-3.5 w-px bg-ops-border hidden sm:block" />
@@ -422,6 +422,12 @@ const themeList = [
 ];
 
 const criticalCount = computed(() => issuesStore.stats.criticalBlockers || 0);
+
+const runtimeEnvShort = computed(() => {
+  const config = useRuntimeConfig();
+  const env = (config.public?.environment as string) || (process.env.NODE_ENV === 'production' ? 'PROD' : 'PROD');
+  return env.slice(0, 4).toUpperCase();
+});
 
 const filteredPopoverNotifications = computed(() => {
   if (notifTab.value === 'All') return notificationsStore.notifications.slice(0, 10);

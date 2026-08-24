@@ -15,6 +15,7 @@ export const useChatStore = defineStore('chat', () => {
   const isLoading = ref(false);
   const isSending = ref(false);
   const searchQuery = ref('');
+  const isConnected = ref(false);
   let socket: Socket | null = null;
 
   const standardChannels = computed(() =>
@@ -61,10 +62,15 @@ export const useChatStore = defineStore('chat', () => {
     });
 
     socket.on('connect', () => {
+      isConnected.value = true;
       console.log('[Socket] Connected to Discuss real-time gateway.');
       if (activeChannel.value) {
         socket?.emit('channel:join', activeChannel.value._id);
       }
+    });
+
+    socket.on('connect_error', () => {
+      isConnected.value = false;
     });
 
     socket.on('presence:update', (userIds: string[]) => {
@@ -130,6 +136,7 @@ export const useChatStore = defineStore('chat', () => {
     });
 
     socket.on('disconnect', () => {
+      isConnected.value = false;
       console.log('[Socket] Disconnected from Discuss real-time gateway.');
     });
   }
@@ -351,6 +358,7 @@ export const useChatStore = defineStore('chat', () => {
     operators,
     onlineUserIds,
     typingUsers,
+    isConnected,
     isLoading,
     isSending,
     searchQuery,

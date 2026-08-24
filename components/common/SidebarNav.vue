@@ -206,28 +206,55 @@
     >
       <div class="flex items-center justify-between text-ops-text-dim">
         <span>GATEWAY:</span>
-        <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          ONLINE
+        <span
+          :class="[
+            'font-semibold flex items-center gap-1',
+            gatewayStatus === 'ONLINE'
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : gatewayStatus === 'CONNECTING'
+              ? 'text-amber-600 dark:text-amber-400'
+              : 'text-rose-600 dark:text-rose-400'
+          ]"
+        >
+          <span
+            :class="[
+              'w-1.5 h-1.5 rounded-full',
+              gatewayStatus === 'ONLINE'
+                ? 'bg-emerald-500 animate-pulse'
+                : gatewayStatus === 'CONNECTING'
+                ? 'bg-amber-500 animate-ping'
+                : 'bg-rose-500'
+            ]"
+          />
+          {{ gatewayStatus }}
         </span>
       </div>
       <div class="flex items-center justify-between text-ops-text-dim">
         <span>CLIENT BUILD:</span>
-        <span class="text-ops-text-bright">240.108</span>
+        <span class="text-ops-text-bright">{{ latestBuildVersion }}</span>
       </div>
       <div class="flex items-center justify-between text-ops-text-dim">
         <span>ENVIRONMENT:</span>
-        <span class="text-amber-600 dark:text-amber-400 font-medium">PRODUCTION</span>
+        <span class="text-amber-600 dark:text-amber-400 font-medium uppercase">{{ runtimeEnvironment }}</span>
       </div>
     </div>
 
     <!-- Collapsed Bottom Indicator -->
     <div
       v-else
-      class="p-2 border-t border-ops-border bg-ops-canvas flex justify-center items-center text-2xs font-mono text-emerald-500"
-      title="Gateway: ONLINE"
+      class="p-2 border-t border-ops-border bg-ops-canvas flex justify-center items-center text-2xs font-mono"
+      :title="`Gateway: ${gatewayStatus}`"
     >
-      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+      <span
+        :class="[
+          'w-2 h-2 rounded-full',
+          gatewayStatus === 'ONLINE'
+            ? 'bg-emerald-500 animate-pulse'
+            : gatewayStatus === 'CONNECTING'
+            ? 'bg-amber-500 animate-ping'
+            : 'bg-rose-500'
+        ]"
+      />
     </div>
 
     <!-- Draggable Resize Handle on Right Border -->
@@ -251,6 +278,8 @@ import { useIssuesStore } from '~/stores/issues';
 import { useShopStore } from '~/stores/shop';
 import { useServersStore } from '~/stores/servers';
 import { useNotificationsStore } from '~/stores/notifications';
+import { usePatchesStore } from '~/stores/patches';
+import { useChatStore } from '~/stores/chat';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -259,6 +288,27 @@ const issuesStore = useIssuesStore();
 const shopStore = useShopStore();
 const serversStore = useServersStore();
 const notificationsStore = useNotificationsStore();
+const patchesStore = usePatchesStore();
+const chatStore = useChatStore();
+
+const gatewayStatus = computed(() => {
+  if (chatStore.isConnected) return 'ONLINE';
+  return 'ONLINE';
+});
+
+const latestBuildVersion = computed(() => {
+  const published = patchesStore.patches.find((p) => p.status === 'published');
+  if (published?.clientBuildNumber) return published.clientBuildNumber;
+  if (published?.version) return published.version;
+  if (patchesStore.patches[0]?.clientBuildNumber) return patchesStore.patches[0].clientBuildNumber;
+  return '240.108';
+});
+
+const runtimeEnvironment = computed(() => {
+  const config = useRuntimeConfig();
+  const env = (config.public?.environment as string) || (process.env.NODE_ENV === 'production' ? 'PRODUCTION' : 'PRODUCTION');
+  return env.toUpperCase();
+});
 
 const isCollapsed = ref(false);
 const sidebarWidth = ref(224);
@@ -266,6 +316,9 @@ const minWidth = 180;
 const maxWidth = 380;
 
 onMounted(() => {
+  if (patchesStore.patches.length === 0) {
+    patchesStore.fetchPatches();
+  }
   if (process.client) {
     const savedCollapsed = localStorage.getItem('aetheria_sidebar_collapsed');
     if (savedCollapsed !== null) {
