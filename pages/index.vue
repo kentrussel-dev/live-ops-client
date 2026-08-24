@@ -166,7 +166,7 @@
           <h3 class="text-xs font-mono font-bold text-ops-text-bright uppercase">
             Active Blocker Triage Pipeline
           </h3>
-          <NuxtLink to="/issues" class="text-2xs font-mono text-rose-400 hover:underline">
+          <NuxtLink to="/issues" class="text-2xs font-mono text-ops-blue-glow hover:underline">
             Open Pipeline Board
           </NuxtLink>
         </div>

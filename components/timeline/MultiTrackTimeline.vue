@@ -104,12 +104,11 @@
         </div>
 
         <!-- Track 1: Server Maintenance & Patches -->
-        <div class="border-b border-ops-border flex items-stretch min-h-[76px] hover:bg-ops-surface/40 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+        <div class="border-b border-ops-border flex items-stretch min-h-[64px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex items-center">
             <div class="text-xs font-mono font-semibold text-ops-text-bright">
               Patches & Maint
             </div>
-            <div class="text-2xs text-ops-text-dim mt-0.5">Deployment windows</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <!-- Background Grid Lines -->
@@ -138,12 +137,11 @@
         </div>
 
         <!-- Track 2: Major In-Game Events & World Bosses -->
-        <div class="border-b border-ops-border flex items-stretch min-h-[96px] hover:bg-ops-surface/40 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+        <div class="border-b border-ops-border flex items-stretch min-h-[76px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex items-center">
             <div class="text-xs font-mono font-semibold text-ops-text-bright">
               Game Events
             </div>
-            <div class="text-2xs text-ops-text-dim mt-0.5">Live raids & boosts</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
@@ -157,8 +155,8 @@
               @click="timelineStore.selectItem(item)"
               :style="{
                 ...getItemStyle(item),
-                top: `${(idx % 2) * 40 + 6}px`,
-                height: '34px'
+                top: `${(idx % 2) * 36 + 6}px`,
+                height: '32px'
               }"
               :class="[
                 'absolute rounded px-2.5 flex items-center gap-2 cursor-pointer shadow-md text-xs font-mono transition border',
@@ -174,12 +172,11 @@
         </div>
 
         <!-- Track 3: Shop & Equipment Rotations -->
-        <div class="border-b border-ops-border flex items-stretch min-h-[86px] hover:bg-ops-surface/40 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+        <div class="border-b border-ops-border flex items-stretch min-h-[68px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex items-center">
             <div class="text-xs font-mono font-semibold text-ops-text-bright">
               Shop Rotations
             </div>
-            <div class="text-2xs text-ops-text-dim mt-0.5">Flash sales & featured gear</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
@@ -192,8 +189,8 @@
               @click="timelineStore.selectItem(item)"
               :style="{
                 ...getItemStyle(item),
-                top: `${(idx % 2) * 36 + 6}px`,
-                height: '30px'
+                top: `${(idx % 2) * 32 + 6}px`,
+                height: '28px'
               }"
               :class="[
                 'absolute rounded px-2 flex items-center gap-1.5 cursor-pointer shadow-md text-2xs font-mono transition border',
@@ -206,12 +203,11 @@
         </div>
 
         <!-- Track 4: Critical Incidents & Blocker Lifecycles -->
-        <div class="flex items-stretch min-h-[76px] hover:bg-ops-surface/40 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+        <div class="flex items-stretch min-h-[64px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex items-center">
             <div class="text-xs font-mono font-semibold text-rose-600 dark:text-rose-300">
               Critical Incidents
             </div>
-            <div class="text-2xs text-ops-text-dim mt-0.5">Active blocker impact</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
@@ -231,7 +227,7 @@
               </span>
             </div>
 
-            <div v-if="timelineStore.filteredTracks.incidents.length === 0" class="h-9 flex items-center pl-4 text-2xs text-emerald-600 dark:text-emerald-400 font-mono">
+            <div v-if="timelineStore.filteredTracks.incidents.length === 0" class="h-9 flex items-center pl-4 text-2xs text-ops-blue-glow font-mono">
               No active blocker incidents in this window
             </div>
           </div>

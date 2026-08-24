@@ -125,7 +125,7 @@
               'text-2xs px-1.5 py-0.2 rounded font-mono font-bold shrink-0',
               item.isAdminBadge
                 ? 'bg-ops-canvas text-ops-text-dim border border-ops-border'
-                : 'dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : 'bg-ops-canvas text-ops-blue-glow border border-ops-border'
             ]"
           >
             {{ item.badge }}
