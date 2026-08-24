@@ -3,23 +3,50 @@
     <!-- Subsystem Header -->
     <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-ops-border">
       <div>
-        <div class="text-2xs font-mono uppercase text-emerald-400 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <div class="text-2xs font-mono uppercase text-ops-blue-glow flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-ops-blue-glow" />
           <span>Subsystem 07 / Game Server Fleet Infrastructure</span>
         </div>
         <h1 class="text-lg font-bold text-ops-text-bright font-sans">Game Servers & Fleet Telemetry</h1>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button
-          v-if="authStore.isAdmin"
-          @click="handleGeneratePreset"
-          :disabled="serversStore.isLoading"
-          class="px-3 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright font-mono text-xs rounded transition flex items-center gap-1.5 shadow"
-          title="Populate complete regional server fleet telemetry data (Game Server fleet only)"
-        >
-          <span>Generate Fleet Preset</span>
-        </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Preset Management Utilities (Admin Only) -->
+        <div v-if="authStore.isAdmin" class="flex items-center gap-1 bg-ops-surface border border-ops-border rounded p-1">
+          <button
+            @click="handleGenerateFleetPreset"
+            :disabled="serversStore.isLoading"
+            class="px-2.5 py-1 bg-ops-obsidian hover:bg-ops-surface-hover text-ops-text-bright font-mono text-2xs rounded transition"
+            title="Populate complete regional server fleet telemetry data (8 servers)"
+          >
+            Generate Fleet Preset
+          </button>
+          <button
+            @click="handleClearFleet"
+            :disabled="serversStore.isLoading"
+            class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover text-ops-text-dim hover:text-ops-text-bright font-mono text-2xs rounded transition"
+            title="Delete all server nodes from the fleet"
+          >
+            Clear Fleet
+          </button>
+          <div class="w-px h-3.5 bg-ops-border mx-0.5" />
+          <button
+            @click="handleGenerateContentPreset"
+            :disabled="serversStore.isLoading"
+            class="px-2.5 py-1 bg-ops-obsidian hover:bg-ops-surface-hover text-ops-text-bright font-mono text-2xs rounded transition"
+            title="Populate complete Content Operations data (Events, Patches, Shop, and Issues)"
+          >
+            Generate Content Preset
+          </button>
+          <button
+            @click="handleClearContentPreset"
+            :disabled="serversStore.isLoading"
+            class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover text-ops-text-dim hover:text-ops-text-bright font-mono text-2xs rounded transition"
+            title="Clear all Events, Patches, Shop Items, and Issues"
+          >
+            Clear Content
+          </button>
+        </div>
 
         <button
           v-if="authStore.isAdmin"
@@ -103,26 +130,31 @@
       v-if="!serversStore.isLoading && serversStore.servers.length === 0"
       class="bg-ops-surface border border-ops-border rounded-lg p-10 text-center space-y-3 font-sans"
     >
-      <div class="w-12 h-12 rounded-full bg-ops-obsidian border border-ops-border flex items-center justify-center mx-auto text-xl">
-        🖥️
+      <div class="w-12 h-12 rounded-full bg-ops-obsidian border border-ops-border flex items-center justify-center mx-auto text-xs font-mono font-bold text-ops-text-dim">
+        SRE
       </div>
       <h3 class="text-sm font-bold font-mono text-ops-text-bright">No Game Server Nodes Provisioned</h3>
       <p class="text-xs text-ops-text-dim max-w-md mx-auto">
-        The server fleet is completely clean and uninitialized. You can generate a production fleet preset with simulated regional nodes, or provision custom servers manually.
+        The server fleet is completely clean and uninitialized. You can generate a production fleet preset with simulated regional nodes, generate content operations preset data, or provision custom servers manually.
       </p>
-      <div v-if="authStore.isAdmin" class="pt-3 flex items-center justify-center gap-3">
+      <div v-if="authStore.isAdmin" class="pt-3 flex flex-wrap items-center justify-center gap-2.5">
         <button
-          @click="handleGeneratePreset"
-          class="px-4 py-2 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
+          @click="handleGenerateFleetPreset"
+          class="px-3.5 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright font-mono text-xs rounded transition"
         >
-          <span>⚡</span>
-          <span>Generate Complete Fleet Preset</span>
+          Generate Fleet Preset
+        </button>
+        <button
+          @click="handleGenerateContentPreset"
+          class="px-3.5 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright font-mono text-xs rounded transition"
+        >
+          Generate Content Preset
         </button>
         <button
           @click="showCreateModal = true"
-          class="px-4 py-2 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition shadow"
+          class="px-3.5 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition shadow"
         >
-          + Provision Custom Server
+          + Provision Server
         </button>
       </div>
     </div>
@@ -183,20 +215,19 @@
               <div class="w-full bg-ops-obsidian rounded-full h-1.5 overflow-hidden">
                 <div
                   :class="[
-                    'h-full transition-all duration-500',
-                    (server.currentPlayers / server.maxPlayers) > 0.9 ? 'bg-rose-500' :
-                    (server.currentPlayers / server.maxPlayers) > 0.7 ? 'bg-amber-500' : 'bg-emerald-500'
+                    'h-full transition-all duration-300',
+                    (server.currentPlayers / server.maxPlayers) > 0.85 ? 'bg-amber-400' : 'bg-ops-blue'
                   ]"
-                  :style="{ width: `${Math.min(100, (server.currentPlayers / server.maxPlayers) * 100)}%` }"
+                  :style="{ width: `${Math.min(100, Math.round((server.currentPlayers / server.maxPlayers) * 100))}%` }"
                 />
               </div>
             </div>
 
-            <!-- Technical Telemetry Matrix -->
-            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-ops-border/40 text-2xs font-mono text-ops-text-dim">
+            <!-- Performance Metrics Grid -->
+            <div class="grid grid-cols-2 gap-2 text-2xs font-mono bg-ops-obsidian/70 p-2.5 rounded border border-ops-border text-ops-text-dim">
               <div>
                 <span>Ping: </span>
-                <span class="text-ops-text-bright font-bold">{{ server.pingMs }}ms</span>
+                <span class="text-ops-text-bright font-bold">{{ server.pingMs }} ms</span>
               </div>
               <div>
                 <span>Tick: </span>
@@ -299,25 +330,36 @@
               v-model="serverForm.name"
               type="text"
               required
-              placeholder="e.g. US-East Dedicated Game Server 01"
-              class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue"
+              placeholder="e.g. US-East Dedicated Server 03"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue"
+            />
+          </div>
+
+          <div>
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Server ID (Unique Identifier)</label>
+            <input
+              v-model="serverForm.serverId"
+              type="text"
+              required
+              placeholder="e.g. srv-useast-03"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Server ID</label>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Host & Port</label>
               <input
-                v-model="serverForm.serverId"
+                v-model="serverForm.host"
                 type="text"
                 required
-                placeholder="srv-useast-01"
-                class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
+                placeholder="198.51.100.26:7777"
+                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
               />
             </div>
 
             <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Datacenter Region</label>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Region</label>
               <select
                 v-model="serverForm.region"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
@@ -333,26 +375,14 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Host IP & Port</label>
-            <input
-              v-model="serverForm.host"
-              type="text"
-              required
-              placeholder="198.51.100.24:7777"
-              class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
-            />
-          </div>
-
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Max Capacity</label>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Max Players</label>
               <input
                 v-model.number="serverForm.maxPlayers"
                 type="number"
-                required
                 min="100"
-                step="500"
+                max="10000"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
               />
             </div>
@@ -362,10 +392,8 @@
               <input
                 v-model.number="serverForm.tickRateHz"
                 type="number"
-                required
-                min="0"
+                min="10"
                 max="128"
-                step="1"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
               />
             </div>
@@ -375,16 +403,13 @@
               <input
                 v-model.number="serverForm.pingMs"
                 type="number"
-                required
-                min="0"
-                max="500"
-                step="1"
+                min="1"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
               />
             </div>
           </div>
 
-          <div class="flex items-center justify-end gap-2 pt-3 border-t border-ops-border">
+          <div class="flex items-center justify-end gap-2 pt-4 border-t border-ops-border">
             <button
               type="button"
               @click="showCreateModal = false"
@@ -397,7 +422,7 @@
               :disabled="serversStore.isLoading"
               class="px-4 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition"
             >
-              Provision Server
+              Provision Node
             </button>
           </div>
         </form>
@@ -412,31 +437,43 @@
       <div class="w-full max-w-lg bg-ops-surface border border-ops-border rounded-lg shadow-2xl overflow-hidden font-sans text-xs">
         <div class="p-4 border-b border-ops-border bg-ops-subtle flex items-center justify-between">
           <div>
-            <h3 class="font-mono font-bold text-sm text-ops-text-bright">Edit Game Server Configuration</h3>
-            <span class="text-2xs font-mono text-ops-text-dim">{{ editForm.serverId }} • {{ editForm.host }}</span>
+            <h3 class="font-mono font-bold text-sm text-ops-text-bright">Edit Server Configuration & Telemetry</h3>
+            <p class="text-2xs text-ops-text-dim font-mono mt-0.5">Instance: {{ editingServer.name }}</p>
           </div>
           <button @click="showEditModal = false" class="text-ops-text-dim hover:text-ops-text-bright font-mono">✕</button>
         </div>
 
-        <form @submit.prevent="handleSaveEdit" class="p-5 space-y-3.5 max-h-[80vh] overflow-y-auto">
-          <div>
-            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Server Name</label>
-            <input
-              v-model="editForm.name"
-              type="text"
-              required
-              class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue"
-            />
-          </div>
-
+        <form @submit.prevent="handleSaveEdit" class="p-5 space-y-3.5">
           <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Server Name</label>
+              <input
+                v-model="editForm.name"
+                type="text"
+                required
+                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue"
+              />
+            </div>
+
             <div>
               <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Server ID</label>
               <input
                 v-model="editForm.serverId"
                 type="text"
                 required
-                class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
+                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Host & Port</label>
+              <input
+                v-model="editForm.host"
+                type="text"
+                required
+                class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
               />
             </div>
 
@@ -457,19 +494,9 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Host IP:Port</label>
-              <input
-                v-model="editForm.host"
-                type="text"
-                required
-                class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
-              />
-            </div>
-
-            <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Status</label>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Operational State</label>
               <select
                 v-model="editForm.status"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono outline-none focus:border-ops-blue"
@@ -481,11 +508,9 @@
                 <option value="offline">Offline</option>
               </select>
             </div>
-          </div>
 
-          <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Current Players (CCU)</label>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Current Players</label>
               <input
                 v-model.number="editForm.currentPlayers"
                 type="number"
@@ -648,13 +673,43 @@ function formatNumber(num: number) {
   return (num || 0).toLocaleString();
 }
 
-async function handleGeneratePreset() {
-  if (!confirm('Populate a realistic regional Game Server Fleet preset? (Only affects the Game Server Fleet data)')) return;
+async function handleGenerateFleetPreset() {
+  if (!confirm('Populate a realistic regional Game Server Fleet preset? (Replaces Game Server fleet data)')) return;
   const res = await serversStore.seedFleetPreset();
   if (res.ok) {
-    toast.success('Fleet Preset Generated', 'Loaded dedicated server nodes across US, EU, AP, and SA datacenters.');
+    toast.success('Fleet Preset Generated', 'Loaded 8 dedicated server nodes across US, EU, AP, and SA datacenters.');
   } else {
     toast.error('Generation Failed', res.error || 'Could not generate fleet preset.');
+  }
+}
+
+async function handleClearFleet() {
+  if (!confirm('Are you sure you want to delete ALL game server nodes from the fleet?')) return;
+  const res = await serversStore.clearFleetPreset();
+  if (res.ok) {
+    toast.info('Fleet Cleared', res.message || 'All game server nodes removed.');
+  } else {
+    toast.error('Clear Failed', res.error || 'Could not clear fleet.');
+  }
+}
+
+async function handleGenerateContentPreset() {
+  if (!confirm('Populate complete Content Operations demo data (Events, Patches, Shop Items, and Issues)?')) return;
+  const res = await serversStore.seedContentPreset();
+  if (res.ok) {
+    toast.success('Content Preset Generated', 'Loaded live events, patch releases, shop catalog items, and known issues.');
+  } else {
+    toast.error('Generation Failed', res.error || 'Could not generate content preset.');
+  }
+}
+
+async function handleClearContentPreset() {
+  if (!confirm('Are you sure you want to clear ALL Content Operations records (Events, Patches, Shop Items, and Issues)?')) return;
+  const res = await serversStore.clearContentPreset();
+  if (res.ok) {
+    toast.info('Content Cleared', res.message || 'All content operations records removed.');
+  } else {
+    toast.error('Clear Failed', res.error || 'Could not clear content operations.');
   }
 }
 

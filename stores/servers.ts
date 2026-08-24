@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { IGameServer, IFleetSummary, ServerNodeStatus, ServerRegion } from '../../shared/types';
+import { useEventsStore } from './events';
+import { usePatchesStore } from './patches';
+import { useShopStore } from './shop';
+import { useIssuesStore } from './issues';
 
 export const useServersStore = defineStore('servers', () => {
   const servers = ref<IGameServer[]>([]);
@@ -22,7 +26,7 @@ export const useServersStore = defineStore('servers', () => {
       const res = await api.get('/servers');
       if (res.success && res.data) {
         servers.value = res.data.servers || [];
-        fleetSummary.value = res.data.fleetSummary || fleetSummary.value;
+        fleetSummary.value = res.data.summary || fleetSummary.value;
       }
     } catch (err) {
       console.error('[fetchServers Error]:', err);
@@ -150,18 +154,92 @@ export const useServersStore = defineStore('servers', () => {
     }
   }
 
-  async function seedFleetPreset(): Promise<{ ok: boolean; error?: string }> {
+  async function seedFleetPreset(): Promise<{ ok: boolean; error?: string; message?: string }> {
     isLoading.value = true;
     try {
       const api = useApi();
       const res = await api.post('/servers/preset');
       if (res.success) {
         await fetchServers();
-        return { ok: true };
+        return { ok: true, message: res.data?.message };
       }
       return { ok: false, error: res.error?.message || 'Failed to generate server fleet preset' };
     } catch (err: any) {
       return { ok: false, error: err?.data?.error?.message || err?.message || 'Error generating fleet preset' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function clearFleetPreset(): Promise<{ ok: boolean; error?: string; message?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.delete('/servers/preset/fleet');
+      if (res.success) {
+        await fetchServers();
+        return { ok: true, message: res.data?.message };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to clear game server fleet' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Error clearing fleet' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function seedContentPreset(): Promise<{ ok: boolean; error?: string; message?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.post('/servers/preset/content');
+      if (res.success) {
+        // Refresh dependent stores if active
+        try {
+          const eventsStore = useEventsStore();
+          const patchesStore = usePatchesStore();
+          const shopStore = useShopStore();
+          const issuesStore = useIssuesStore();
+          await Promise.all([
+            eventsStore.fetchEvents(),
+            patchesStore.fetchPatches(),
+            shopStore.fetchShopItems(),
+            issuesStore.fetchIssues(),
+          ]);
+        } catch (_) {}
+        return { ok: true, message: res.data?.message };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to generate content preset' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Error generating content preset' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function clearContentPreset(): Promise<{ ok: boolean; error?: string; message?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.delete('/servers/preset/content');
+      if (res.success) {
+        try {
+          const eventsStore = useEventsStore();
+          const patchesStore = usePatchesStore();
+          const shopStore = useShopStore();
+          const issuesStore = useIssuesStore();
+          await Promise.all([
+            eventsStore.fetchEvents(),
+            patchesStore.fetchPatches(),
+            shopStore.fetchShopItems(),
+            issuesStore.fetchIssues(),
+          ]);
+        } catch (_) {}
+        return { ok: true, message: res.data?.message };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to clear content preset' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Error clearing content preset' };
     } finally {
       isLoading.value = false;
     }
@@ -179,5 +257,8 @@ export const useServersStore = defineStore('servers', () => {
     rebootServer,
     deleteServer,
     seedFleetPreset,
+    clearFleetPreset,
+    seedContentPreset,
+    clearContentPreset,
   };
 });
