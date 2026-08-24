@@ -3,7 +3,7 @@
     v-if="isOpen"
     ref="pickerRef"
     :class="[
-      'absolute z-50 pointer-events-auto bg-ops-surface border border-ops-border rounded-xl shadow-2xl overflow-hidden font-sans text-xs w-80 sm:w-88 flex flex-col animate-fade-in',
+      'absolute z-50 pointer-events-auto bg-ops-surface border border-ops-border rounded-xl shadow-2xl overflow-hidden font-sans text-xs w-[360px] max-w-[calc(100vw-24px)] flex flex-col animate-fade-in',
       resolvedPlacement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
       resolvedAlign === 'right' ? 'right-0' : 'left-0'
     ]"
@@ -38,22 +38,23 @@
       </div>
     </div>
 
-    <!-- Category Tabs (Larger, Comfortable & Clean) -->
-    <div v-if="!searchQuery" class="px-2.5 py-2 border-b border-ops-border bg-ops-obsidian flex items-center justify-between gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <!-- Category Tabs (Full 5 Tabs Grid - 100% Visible & Proportionate) -->
+    <div v-if="!searchQuery" class="px-2 py-1.5 border-b border-ops-border bg-ops-obsidian grid grid-cols-5 gap-1">
       <button
         v-for="cat in categories"
         :key="cat.id"
         type="button"
         @click="activeCategory = cat.id"
         :class="[
-          'px-2.5 py-1 rounded-md text-xs font-semibold font-sans transition shrink-0 flex items-center gap-1.5 select-none',
+          'py-1 px-1 rounded-md text-xs font-semibold font-sans transition flex items-center justify-center gap-1 select-none w-full',
           activeCategory === cat.id
             ? 'bg-ops-blue text-white shadow-xs'
             : 'text-ops-text-dim hover:text-ops-text-bright hover:bg-ops-surface'
         ]"
+        :title="cat.name"
       >
-        <span class="text-sm">{{ cat.icon }}</span>
-        <span>{{ cat.name }}</span>
+        <span class="text-xs sm:text-sm shrink-0">{{ cat.icon }}</span>
+        <span class="truncate">{{ cat.name }}</span>
       </button>
     </div>
 
@@ -121,7 +122,7 @@ function calculatePosition() {
 
   const rect = parent.getBoundingClientRect();
   const popoverHeight = 330;
-  const popoverWidth = 340;
+  const popoverWidth = 360;
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
 
