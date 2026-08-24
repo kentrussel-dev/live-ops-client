@@ -9,7 +9,7 @@
       <CommonSidebarNav v-if="authStore.isAuthenticated" />
 
       <!-- Main Operational Viewport -->
-      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-ops-canvas">
+      <main class="flex-1 min-w-0 overflow-y-auto p-4 md:p-6 bg-ops-canvas">
         <slot />
       </main>
     </div>

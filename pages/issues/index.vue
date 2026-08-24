@@ -9,7 +9,7 @@
 
       <div class="flex items-center gap-2">
         <span class="text-2xs font-mono text-ops-text-dim hidden sm:inline-block">
-          Drag cards with mouse to advance pipeline stages
+          Drag cards to advance stages • Click card to edit full screen
         </span>
         <button
           @click="issuesStore.isCreateModalOpen = true"
@@ -83,19 +83,22 @@
             draggable="true"
             @dragstart="handleDragStart($event, ticket)"
             @dragend="handleDragEnd"
-            @click="issuesStore.openDetail(ticket)"
+            @click="navigateTo(`/issues/${ticket._id}`)"
             :class="[
-              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-grab active:cursor-grabbing transition-all space-y-1.5',
+              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-pointer active:cursor-grabbing transition-all space-y-1.5 group',
               draggedTicket?._id === ticket._id
                 ? 'opacity-40 border-dashed border-ops-blue'
-                : 'border-ops-border hover:border-ops-blue/60'
+                : 'border-ops-border hover:border-ops-blue/80'
             ]"
           >
             <div class="flex items-center justify-between gap-1.5">
               <span class="font-mono font-bold text-2xs text-ops-blue-glow">{{ ticket.ticketKey }}</span>
-              <CommonStatusPill :status="ticket.severity" />
+              <div class="flex items-center gap-1">
+                <CommonStatusPill :status="ticket.severity" />
+                <span class="text-3xs font-mono text-ops-text-dim group-hover:text-ops-blue-glow transition">↗</span>
+              </div>
             </div>
-            <h4 class="font-bold text-xs text-ops-text-bright leading-snug">{{ ticket.title }}</h4>
+            <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-ops-text-dim flex items-center justify-between pt-1 border-t border-ops-border/40">
               <span>{{ ticket.category }}</span>
               <span>{{ ticket.affectedCluster || 'Global' }}</span>
@@ -144,19 +147,22 @@
             draggable="true"
             @dragstart="handleDragStart($event, ticket)"
             @dragend="handleDragEnd"
-            @click="issuesStore.openDetail(ticket)"
+            @click="navigateTo(`/issues/${ticket._id}`)"
             :class="[
-              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-grab active:cursor-grabbing transition-all space-y-1.5',
+              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-pointer active:cursor-grabbing transition-all space-y-1.5 group',
               draggedTicket?._id === ticket._id
                 ? 'opacity-40 border-dashed border-ops-blue'
-                : 'border-ops-border hover:border-ops-blue/60'
+                : 'border-ops-border hover:border-ops-blue/80'
             ]"
           >
             <div class="flex items-center justify-between gap-1.5">
               <span class="font-mono font-bold text-2xs text-ops-blue-glow">{{ ticket.ticketKey }}</span>
-              <CommonStatusPill :status="ticket.severity" />
+              <div class="flex items-center gap-1">
+                <CommonStatusPill :status="ticket.severity" />
+                <span class="text-3xs font-mono text-ops-text-dim group-hover:text-ops-blue-glow transition">↗</span>
+              </div>
             </div>
-            <h4 class="font-bold text-xs text-ops-text-bright leading-snug">{{ ticket.title }}</h4>
+            <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-ops-text-dim flex items-center justify-between pt-1 border-t border-ops-border/40">
               <span class="text-blue-300">In Triage</span>
               <span>{{ ticket.internalNotes?.length || 0 }} note(s)</span>
@@ -205,19 +211,22 @@
             draggable="true"
             @dragstart="handleDragStart($event, ticket)"
             @dragend="handleDragEnd"
-            @click="issuesStore.openDetail(ticket)"
+            @click="navigateTo(`/issues/${ticket._id}`)"
             :class="[
-              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-grab active:cursor-grabbing transition-all space-y-1.5',
+              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-pointer active:cursor-grabbing transition-all space-y-1.5 group',
               draggedTicket?._id === ticket._id
                 ? 'opacity-40 border-dashed border-ops-blue'
-                : 'border-ops-border hover:border-ops-blue/60'
+                : 'border-ops-border hover:border-ops-blue/80'
             ]"
           >
             <div class="flex items-center justify-between gap-1.5">
               <span class="font-mono font-bold text-2xs text-ops-blue-glow">{{ ticket.ticketKey }}</span>
-              <CommonStatusPill :status="ticket.severity" />
+              <div class="flex items-center gap-1">
+                <CommonStatusPill :status="ticket.severity" />
+                <span class="text-3xs font-mono text-ops-text-dim group-hover:text-ops-blue-glow transition">↗</span>
+              </div>
             </div>
-            <h4 class="font-bold text-xs text-ops-text-bright leading-snug">{{ ticket.title }}</h4>
+            <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-purple-300 pt-1 border-t border-ops-border/40">
               Ready for QA Verification
             </div>
@@ -265,19 +274,22 @@
             draggable="true"
             @dragstart="handleDragStart($event, ticket)"
             @dragend="handleDragEnd"
-            @click="issuesStore.openDetail(ticket)"
+            @click="navigateTo(`/issues/${ticket._id}`)"
             :class="[
-              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-grab active:cursor-grabbing transition-all space-y-1.5',
+              'p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border rounded cursor-pointer active:cursor-grabbing transition-all space-y-1.5 group',
               draggedTicket?._id === ticket._id
                 ? 'opacity-40 border-dashed border-ops-blue'
-                : 'border-ops-border hover:border-ops-blue/60'
+                : 'border-ops-border hover:border-ops-blue/80'
             ]"
           >
             <div class="flex items-center justify-between gap-1.5">
               <span class="font-mono font-bold text-2xs text-ops-blue-glow">{{ ticket.ticketKey }}</span>
-              <CommonStatusPill :status="ticket.severity" />
+              <div class="flex items-center gap-1">
+                <CommonStatusPill :status="ticket.severity" />
+                <span class="text-3xs font-mono text-ops-text-dim group-hover:text-ops-blue-glow transition">↗</span>
+              </div>
             </div>
-            <h4 class="font-bold text-xs text-ops-text-bright leading-snug">{{ ticket.title }}</h4>
+            <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
             <div class="text-2xs font-mono text-emerald-400 pt-1 border-t border-ops-border/40 flex items-center gap-1">
               <span>✓ Signed off for release</span>
             </div>
@@ -290,8 +302,7 @@
       </div>
     </div>
 
-    <!-- Modals & Drawers -->
-    <IssuesIssueDetailDrawer />
+    <!-- Modals -->
     <IssuesIssueCreateModal />
   </div>
 </template>
@@ -336,7 +347,6 @@ function handleDragEnter(stage: IssueStatus) {
 }
 
 function handleDragLeave(event: DragEvent, stage: IssueStatus) {
-  // Clear if leaving the column boundary
   const related = event.relatedTarget as HTMLElement | null;
   const current = event.currentTarget as HTMLElement | null;
   if (!current || !related || !current.contains(related)) {

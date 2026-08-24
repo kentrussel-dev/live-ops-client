@@ -52,6 +52,28 @@ export const useIssuesStore = defineStore('issues', () => {
     }
   }
 
+  async function fetchIssueById(id: string): Promise<IIssueTicket | null> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.get(`/issues/${id}`);
+      if (res.success && res.data?.issue) {
+        selectedIssue.value = res.data.issue;
+        const idx = issues.value.findIndex((i) => i._id === id);
+        if (idx !== -1) issues.value[idx] = res.data.issue;
+        else issues.value.push(res.data.issue);
+        return res.data.issue;
+      }
+      return null;
+    } catch (err: any) {
+      const toast = useToast();
+      toast.error('Failed to load issue details', err.message);
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   const columns = computed(() => {
     return {
       reported: issues.value.filter((i) => i.status === 'reported'),
@@ -61,6 +83,33 @@ export const useIssuesStore = defineStore('issues', () => {
       closed: issues.value.filter((i) => i.status === 'closed'),
     };
   });
+
+  async function updateIssue(issueId: string, payload: Partial<IIssueTicket>): Promise<boolean> {
+    const toast = useToast();
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.put(`/issues/${issueId}`, payload);
+      if (res.success && res.data?.issue) {
+        const index = issues.value.findIndex((i) => i._id === issueId);
+        if (index !== -1) {
+          issues.value[index] = res.data.issue;
+        }
+        if (selectedIssue.value?._id === issueId) {
+          selectedIssue.value = res.data.issue;
+        }
+        toast.success('Ticket Updated', `Changes saved for [${res.data.issue.ticketKey}].`);
+        await fetchIssues();
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      toast.error('Update Failed', err.message);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   async function transitionStatus(issueId: string, targetStatus: IssueStatus, note?: string, resolutionNotes?: string): Promise<boolean> {
     const toast = useToast();
@@ -153,6 +202,8 @@ export const useIssuesStore = defineStore('issues', () => {
     searchQuery,
     columns,
     fetchIssues,
+    fetchIssueById,
+    updateIssue,
     transitionStatus,
     addNote,
     createIssue,
