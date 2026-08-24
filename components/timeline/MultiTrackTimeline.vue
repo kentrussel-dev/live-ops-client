@@ -70,8 +70,8 @@
     </div>
 
     <!-- Timeline Scroll Container -->
-    <div ref="scrollContainer" class="overflow-x-auto relative min-h-[380px] bg-ops-canvas">
-      <div class="min-w-[960px] pb-4 select-none relative">
+    <div ref="scrollContainer" class="overflow-x-auto relative bg-ops-canvas">
+      <div class="min-w-[960px] select-none relative">
         <!-- Time Ruler Header -->
         <div class="h-9 border-b border-ops-border bg-ops-surface sticky top-0 z-20 flex items-center">
           <div class="w-40 shrink-0 px-3 text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim border-r border-ops-border">
