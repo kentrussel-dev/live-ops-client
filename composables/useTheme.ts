@@ -6,34 +6,34 @@ export type ColorMode = 'dark' | 'light';
 export interface IThemeOption {
   id: ThemeFamily;
   name: string;
-  darkAccentHex: string;
-  lightAccentHex: string;
+  darkAccent: string;
+  lightAccent: string;
 }
 
 export const THEME_FAMILIES: IThemeOption[] = [
   {
     id: 'tech-slate',
-    name: 'Tech Slate (Original)',
-    darkAccentHex: '#38bdf8',
-    lightAccentHex: '#2563eb',
+    name: 'Slate',
+    darkAccent: '#38bdf8',
+    lightAccent: '#2563eb',
   },
   {
     id: 'emerald',
-    name: 'Charcoal & Emerald',
-    darkAccentHex: '#34d399',
-    lightAccentHex: '#059669',
+    name: 'Emerald',
+    darkAccent: '#34d399',
+    lightAccent: '#059669',
   },
   {
     id: 'cyberpunk',
-    name: 'Cyberpunk & Rose',
-    darkAccentHex: '#f43f5e',
-    lightAccentHex: '#d946ef',
+    name: 'Rose',
+    darkAccent: '#f43f5e',
+    lightAccent: '#d946ef',
   },
   {
     id: 'amethyst',
-    name: 'Royal Amethyst',
-    darkAccentHex: '#c084fc',
-    lightAccentHex: '#7e22ce',
+    name: 'Amethyst',
+    darkAccent: '#c084fc',
+    lightAccent: '#7e22ce',
   },
 ];
 
@@ -64,17 +64,14 @@ export function useTheme() {
   function applyThemeToDom() {
     if (!process.client) return;
 
-    // Remove all previous theme classes
     THEME_FAMILIES.forEach((tf) => {
       document.documentElement.classList.remove(`theme-${tf.id}-dark`);
       document.documentElement.classList.remove(`theme-${tf.id}-light`);
     });
 
-    // Add current theme class
     const newClass = `theme-${currentTheme.value}-${currentMode.value}`;
     document.documentElement.classList.add(newClass);
 
-    // Toggle Tailwind dark mode class
     if (currentMode.value === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.style.colorScheme = 'dark';
@@ -104,16 +101,6 @@ export function useTheme() {
     setMode(currentMode.value === 'dark' ? 'light' : 'dark');
   }
 
-  function setPreset(family: ThemeFamily, mode: ColorMode) {
-    currentTheme.value = family;
-    currentMode.value = mode;
-    if (process.client) {
-      localStorage.setItem('aetheria_theme_family', family);
-      localStorage.setItem('aetheria_color_mode', mode);
-    }
-    applyThemeToDom();
-  }
-
   return {
     currentTheme,
     currentMode,
@@ -123,6 +110,5 @@ export function useTheme() {
     setTheme,
     setMode,
     toggleMode,
-    setPreset,
   };
 }

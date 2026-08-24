@@ -15,10 +15,9 @@
           v-if="authStore.isAdmin"
           @click="handleGeneratePreset"
           :disabled="serversStore.isLoading"
-          class="px-3 py-1.5 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
+          class="px-3 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright font-mono text-xs rounded transition flex items-center gap-1.5 shadow"
           title="Populate complete regional server fleet telemetry data (Game Server fleet only)"
         >
-          <span>⚡</span>
           <span>Generate Fleet Preset</span>
         </button>
 
@@ -46,13 +45,13 @@
       <!-- Metric 1: Total Fleet CCU -->
       <div class="bg-ops-surface border border-ops-border rounded p-3 space-y-1">
         <div class="text-2xs font-mono uppercase text-ops-text-dim">Fleet Concurrent Players (CCU)</div>
-        <div class="text-xl font-bold font-mono text-emerald-400">
+        <div class="text-xl font-bold font-mono text-ops-text-bright">
           {{ formatNumber(serversStore.fleetSummary.totalCcu) }}
           <span class="text-xs text-ops-text-dim font-normal">/ {{ formatNumber(serversStore.fleetSummary.totalCapacity) }}</span>
         </div>
         <div class="w-full bg-ops-obsidian rounded-full h-1.5 overflow-hidden mt-2">
           <div
-            class="bg-emerald-500 h-full transition-all duration-500"
+            class="bg-ops-blue h-full transition-all duration-500"
             :style="{ width: `${serversStore.fleetSummary.utilizationPct}%` }"
           />
         </div>
@@ -65,15 +64,11 @@
       <!-- Metric 2: Server Node Health -->
       <div class="bg-ops-surface border border-ops-border rounded p-3 space-y-1">
         <div class="text-2xs font-mono uppercase text-ops-text-dim">Active Server Nodes</div>
-        <div class="text-xl font-bold font-mono text-ops-blue-glow">
+        <div class="text-xl font-bold font-mono text-ops-text-bright">
           {{ serversStore.fleetSummary.onlineServers }}
           <span class="text-xs text-ops-text-dim font-normal">/ {{ serversStore.fleetSummary.totalServers }} Online</span>
         </div>
-        <div class="text-2xs font-mono text-ops-text-dim pt-1.5 flex items-center gap-1.5">
-          <span
-            :class="serversStore.fleetSummary.onlineServers > 0 ? 'bg-emerald-400' : 'bg-slate-500'"
-            class="w-2 h-2 rounded-full"
-          />
+        <div class="text-2xs font-mono text-ops-text-dim pt-1.5">
           <span>{{ serversStore.fleetSummary.onlineServers > 0 ? 'Server Fleet Operational' : 'No Active Servers' }}</span>
         </div>
       </div>
@@ -81,12 +76,11 @@
       <!-- Metric 3: Average Latency / Ping -->
       <div class="bg-ops-surface border border-ops-border rounded p-3 space-y-1">
         <div class="text-2xs font-mono uppercase text-ops-text-dim">Average Network Ping</div>
-        <div class="text-xl font-bold font-mono text-amber-400">
+        <div class="text-xl font-bold font-mono text-ops-text-bright">
           {{ serversStore.fleetSummary.avgPingMs }}
           <span class="text-xs text-ops-text-dim font-normal">ms RTT</span>
         </div>
-        <div class="text-2xs font-mono text-ops-text-dim pt-1.5 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-amber-400" />
+        <div class="text-2xs font-mono text-ops-text-dim pt-1.5">
           <span>Edge Routing Telemetry</span>
         </div>
       </div>
@@ -94,12 +88,11 @@
       <!-- Metric 4: Average Tick Rate -->
       <div class="bg-ops-surface border border-ops-border rounded p-3 space-y-1">
         <div class="text-2xs font-mono uppercase text-ops-text-dim">Simulation Tick Rate</div>
-        <div class="text-xl font-bold font-mono text-purple-400">
+        <div class="text-xl font-bold font-mono text-ops-text-bright">
           {{ serversStore.fleetSummary.avgTickRateHz }}
           <span class="text-xs text-ops-text-dim font-normal">Hz</span>
         </div>
-        <div class="text-2xs font-mono text-ops-text-dim pt-1.5 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-purple-400" />
+        <div class="text-2xs font-mono text-ops-text-dim pt-1.5">
           <span>Physics Loop Target: 60 Hz</span>
         </div>
       </div>
@@ -229,39 +222,33 @@
 
             <!-- Login Lock Badge -->
             <div v-if="server.lockedForLogins" class="text-2xs font-mono text-amber-400 flex items-center gap-1 pt-1">
-              <span>🔒</span>
               <span>Player Logins Locked (Draining Traffic)</span>
             </div>
           </div>
 
           <!-- Root Admin SRE Controls -->
-          <div v-if="authStore.isAdmin" class="pt-3 border-t border-ops-border/60 flex items-center justify-between gap-1.5 text-2xs font-mono">
+          <div v-if="authStore.isAdmin" class="pt-3 border-t border-ops-border flex items-center justify-between gap-1.5 text-2xs font-mono">
             <div class="flex items-center gap-1.5 flex-wrap">
               <!-- Edit Manually Button -->
               <button
                 @click="openEditModal(server)"
-                class="px-2 py-1 bg-ops-blue/20 hover:bg-ops-blue/30 border border-ops-blue text-ops-blue-glow font-bold rounded transition"
+                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright rounded transition"
                 title="Manually edit all telemetry and config for this server"
               >
-                ✏️ Edit
+                Edit
               </button>
 
               <button
                 v-if="server.status !== 'online'"
                 @click="handleSetStatus(server._id, 'online')"
-                class="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded transition"
+                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright rounded transition"
               >
                 Online
               </button>
 
               <button
                 @click="handleToggleDrain(server._id)"
-                :class="[
-                  'px-2 py-1 rounded transition border',
-                  server.status === 'draining'
-                    ? 'bg-indigo-900 border-indigo-600 text-white'
-                    : 'bg-ops-obsidian hover:bg-ops-subtle border-ops-border text-ops-text-dim'
-                ]"
+                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-dim hover:text-ops-text-bright rounded transition"
               >
                 {{ server.status === 'draining' ? 'Cancel Drain' : 'Drain' }}
               </button>
@@ -269,14 +256,14 @@
               <button
                 v-if="server.status !== 'maintenance'"
                 @click="handleSetStatus(server._id, 'maintenance')"
-                class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 border border-rose-900 text-rose-300 rounded transition"
+                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-dim hover:text-ops-text-bright rounded transition"
               >
                 Maint
               </button>
 
               <button
                 @click="handleReboot(server._id, server.name)"
-                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-subtle border border-ops-border text-purple-300 rounded transition"
+                class="px-2 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-dim hover:text-ops-text-bright rounded transition"
               >
                 Reboot
               </button>

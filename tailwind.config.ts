@@ -20,6 +20,7 @@ export default <Config>{
           'surface-hover': 'var(--ops-surface-hover)',
           subtle: 'var(--ops-subtle)',
           border: 'var(--ops-border)',
+          'border-subtle': 'var(--ops-border-subtle)',
           'border-light': 'var(--ops-border-light)',
           'text-bright': 'var(--ops-text-bright)',
           'text-base': 'var(--ops-text-base)',

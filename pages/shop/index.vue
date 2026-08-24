@@ -150,7 +150,7 @@
               <!-- Item Details -->
               <td class="p-3 min-w-[200px]">
                 <div class="font-bold text-ops-text-bright text-xs flex items-center gap-1.5">
-                  <span v-if="item.previewAssets?.hasParticleEffect" title="Particle Effect" class="text-amber-400">✨</span>
+                  <span v-if="item.previewAssets?.hasParticleEffect" class="text-3xs px-1 py-0.2 rounded bg-amber-500/20 text-amber-400 font-mono font-bold">VFX</span>
                   <span>{{ item.name }}</span>
                 </div>
                 <div class="font-mono text-2xs text-ops-text-dim mt-0.5">{{ item.itemId }}</div>

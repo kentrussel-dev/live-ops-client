@@ -4,7 +4,7 @@
     class="relative bg-ops-surface border-r border-ops-border flex flex-col justify-between select-none shrink-0 h-[calc(100vh-2.75rem)] sticky top-11 transition-[width] duration-150 ease-out"
   >
     <!-- Top Toggle Bar -->
-    <div class="px-2 py-1.5 border-b border-ops-border/60 flex items-center justify-between bg-ops-subtle/50">
+    <div class="px-2 py-1.5 border-b border-ops-border flex items-center justify-between bg-ops-subtle">
       <div v-if="!isCollapsed" class="text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim px-1 truncate">
         Subsystems
       </div>
@@ -25,7 +25,7 @@
       <div class="space-y-1">
         <div
           v-if="!isCollapsed"
-          class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dark truncate"
+          class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim truncate"
         >
           Content Operations
         </div>
@@ -41,7 +41,7 @@
               ? 'justify-center p-2'
               : 'justify-between px-2.5 py-1.5',
             isActive(item.path)
-              ? 'bg-ops-blue/20 text-ops-text-bright font-semibold border-l-2 border-ops-blue-glow'
+              ? 'bg-ops-blue/15 text-ops-text-bright font-semibold border-l-2 border-ops-blue'
               : 'text-ops-text-dim hover:bg-ops-surface-hover hover:text-ops-text-bright border-l-2 border-transparent'
           ]"
         >
@@ -63,8 +63,8 @@
             :class="[
               'text-2xs px-1.5 py-0.2 rounded font-mono font-bold shrink-0',
               item.badgeAlert
-                ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                : 'bg-ops-border text-ops-text-dim'
+                ? 'dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800 bg-rose-100 text-rose-800 border border-rose-300'
+                : 'bg-ops-canvas text-ops-text-dim border border-ops-border'
             ]"
           >
             {{ item.badge }}
@@ -82,12 +82,12 @@
       </div>
 
       <!-- Section 2: Technical Server Infrastructure & SRE -->
-      <div class="space-y-1 pt-2 border-t border-ops-border/60">
+      <div class="space-y-1 pt-2 border-t border-ops-border">
         <div
           v-if="!isCollapsed"
-          class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-emerald-400/80 flex items-center gap-1 truncate"
+          class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim flex items-center gap-1 truncate"
         >
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+          <span class="w-1.5 h-1.5 rounded-full bg-ops-blue shrink-0" />
           <span class="truncate">Server Infrastructure</span>
         </div>
 
@@ -102,7 +102,7 @@
               ? 'justify-center p-2'
               : 'justify-between px-2.5 py-1.5',
             isActive(item.path)
-              ? 'bg-emerald-950/40 text-emerald-300 font-semibold border-l-2 border-emerald-400'
+              ? 'bg-ops-blue/15 text-ops-text-bright font-semibold border-l-2 border-ops-blue'
               : 'text-ops-text-dim hover:bg-ops-surface-hover hover:text-ops-text-bright border-l-2 border-transparent'
           ]"
         >
@@ -110,7 +110,7 @@
             <span
               :class="[
                 'font-mono font-bold text-2xs transition',
-                isActive(item.path) ? 'text-emerald-400' : 'opacity-60 group-hover:opacity-100'
+                isActive(item.path) ? 'text-ops-blue-glow' : 'opacity-60 group-hover:opacity-100'
               ]"
             >
               {{ item.code }}
@@ -124,8 +124,8 @@
             :class="[
               'text-2xs px-1.5 py-0.2 rounded font-mono font-bold shrink-0',
               item.isAdminBadge
-                ? 'bg-purple-950 text-purple-300 border border-purple-800'
-                : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                ? 'bg-ops-canvas text-ops-text-dim border border-ops-border'
+                : 'dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 bg-emerald-100 text-emerald-800 border border-emerald-300'
             ]"
           >
             {{ item.badge }}
@@ -136,7 +136,7 @@
             v-if="isCollapsed && item.badge !== undefined"
             :class="[
               'absolute top-1 right-1 w-2 h-2 rounded-full',
-              item.isAdminBadge ? 'bg-purple-400' : 'bg-emerald-400'
+              item.isAdminBadge ? 'bg-ops-text-dim' : 'bg-ops-blue'
             ]"
           />
         </NuxtLink>
@@ -146,12 +146,12 @@
     <!-- Bottom System Health Block (Expanded only) -->
     <div
       v-if="!isCollapsed"
-      class="p-3 border-t border-ops-border bg-ops-obsidian/40 text-2xs font-mono space-y-1.5 shrink-0"
+      class="p-3 border-t border-ops-border bg-ops-canvas text-2xs font-mono space-y-1.5 shrink-0"
     >
       <div class="flex items-center justify-between text-ops-text-dim">
         <span>GATEWAY:</span>
-        <span class="text-emerald-400 font-semibold flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           ONLINE
         </span>
       </div>
@@ -161,17 +161,17 @@
       </div>
       <div class="flex items-center justify-between text-ops-text-dim">
         <span>ENVIRONMENT:</span>
-        <span class="text-amber-400 font-medium">PRODUCTION</span>
+        <span class="text-amber-600 dark:text-amber-400 font-medium">PRODUCTION</span>
       </div>
     </div>
 
     <!-- Collapsed Bottom Indicator -->
     <div
       v-else
-      class="p-2 border-t border-ops-border bg-ops-obsidian/40 flex justify-center items-center text-2xs font-mono text-emerald-400"
+      class="p-2 border-t border-ops-border bg-ops-canvas flex justify-center items-center text-2xs font-mono text-emerald-500"
       title="Gateway: ONLINE"
     >
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
     </div>
 
     <!-- Draggable Resize Handle on Right Border -->
@@ -181,7 +181,7 @@
       class="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-ops-blue/60 active:bg-ops-blue transition select-none z-20 group"
       title="Drag to resize sidebar width"
     >
-      <div class="w-0.5 h-8 bg-ops-border group-hover:bg-ops-blue-glow absolute top-1/2 -translate-y-1/2 right-0.5 rounded" />
+      <div class="w-0.5 h-8 bg-ops-border-light group-hover:bg-ops-blue absolute top-1/2 -translate-y-1/2 right-0.5 rounded" />
     </div>
   </aside>
 </template>

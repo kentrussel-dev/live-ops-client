@@ -8,9 +8,6 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-2xs font-mono text-ops-text-dim hidden sm:inline-block">
-          Drag cards to advance stages • Click card to edit full screen
-        </span>
         <button
           @click="issuesStore.isCreateModalOpen = true"
           class="px-3 py-1.5 bg-rose-700 hover:bg-rose-600 text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
@@ -290,8 +287,8 @@
               </div>
             </div>
             <h4 class="font-bold text-xs text-ops-text-bright leading-snug group-hover:text-ops-blue-glow transition">{{ ticket.title }}</h4>
-            <div class="text-2xs font-mono text-emerald-400 pt-1 border-t border-ops-border/40 flex items-center gap-1">
-              <span>✓ Signed off for release</span>
+            <div class="text-2xs font-mono text-emerald-600 dark:text-emerald-400 pt-1 border-t border-ops-border/40 flex items-center gap-1">
+              <span>Signed off for release</span>
             </div>
           </div>
 

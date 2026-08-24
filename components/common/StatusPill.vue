@@ -27,28 +27,28 @@ const styleClasses = computed(() => {
   const s = props.status?.toLowerCase() || '';
 
   // Active / Live / Nominal / Fixed / Verified
-  if (['active', 'live', 'nominal', 'fixed', 'verified', 'published'].includes(s)) {
-    return 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/60';
+  if (['active', 'live', 'nominal', 'fixed', 'verified', 'published', 'online'].includes(s)) {
+    return 'dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800 bg-emerald-100 text-emerald-800 border border-emerald-300';
   }
 
-  // Scheduled / In Review / Flash Sale / Investigating
-  if (['scheduled', 'in_review', 'flash_sale', 'investigating', 'warning', 'featured'].includes(s)) {
-    return 'bg-amber-950/60 text-amber-300 border border-amber-800/60';
+  // Scheduled / In Review / Flash Sale / Investigating / Warning
+  if (['scheduled', 'in_review', 'flash_sale', 'investigating', 'warning', 'featured', 'high_load'].includes(s)) {
+    return 'dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800 bg-amber-100 text-amber-800 border border-amber-300';
   }
 
-  // Critical / Paused / Cancelled / Degraded / Incident / Blocker
-  if (['paused', 'cancelled', 'critical_blocker', 'major', 'incident_active', 'degraded', 'offline', 'error'].includes(s)) {
-    return 'bg-rose-950/60 text-rose-300 border border-rose-800/60';
+  // Critical / Paused / Cancelled / Degraded / Incident / Blocker / Draining / Maintenance
+  if (['paused', 'cancelled', 'critical_blocker', 'major', 'incident_active', 'degraded', 'offline', 'error', 'draining', 'maintenance'].includes(s)) {
+    return 'dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800 bg-rose-100 text-rose-800 border border-rose-300';
   }
 
-  // Draft / Standard / Closed / Archived / Retired
-  if (['draft', 'standard', 'closed', 'archived', 'retired', 'vaulted'].includes(s)) {
-    return 'bg-slate-900 text-slate-400 border border-slate-700/60';
+  // Draft / Standard / Closed / Archived / Retired / Moderate / Minor
+  if (['draft', 'standard', 'closed', 'archived', 'retired', 'vaulted', 'moderate', 'minor'].includes(s)) {
+    return 'dark:bg-ops-surface dark:text-ops-text-dim dark:border-ops-border bg-slate-100 text-slate-700 border border-slate-300';
   }
 
   // Mythic / Purple
   if (['mythic', 'legendary'].includes(s)) {
-    return 'bg-purple-950/60 text-purple-300 border border-purple-800/60';
+    return 'dark:bg-purple-950/70 dark:text-purple-300 dark:border-purple-800 bg-purple-100 text-purple-800 border border-purple-300';
   }
 
   return 'bg-ops-surface text-ops-text-dim border border-ops-border';
@@ -56,18 +56,18 @@ const styleClasses = computed(() => {
 
 const dotClasses = computed(() => {
   const s = props.status?.toLowerCase() || '';
-  if (['active', 'live', 'nominal', 'fixed', 'verified', 'published'].includes(s)) {
-    return 'bg-emerald-400 animate-pulse';
+  if (['active', 'live', 'nominal', 'fixed', 'verified', 'published', 'online'].includes(s)) {
+    return 'bg-emerald-500 dark:bg-emerald-400 animate-pulse';
   }
-  if (['scheduled', 'in_review', 'flash_sale', 'investigating', 'warning', 'featured'].includes(s)) {
-    return 'bg-amber-400';
+  if (['scheduled', 'in_review', 'flash_sale', 'investigating', 'warning', 'featured', 'high_load'].includes(s)) {
+    return 'bg-amber-500 dark:bg-amber-400';
   }
-  if (['paused', 'cancelled', 'critical_blocker', 'major', 'incident_active', 'degraded', 'offline', 'error'].includes(s)) {
-    return 'bg-rose-500 animate-ping';
+  if (['paused', 'cancelled', 'critical_blocker', 'major', 'incident_active', 'degraded', 'offline', 'error', 'draining', 'maintenance'].includes(s)) {
+    return 'bg-rose-500';
   }
   if (['mythic', 'legendary'].includes(s)) {
-    return 'bg-purple-400';
+    return 'bg-purple-500 dark:bg-purple-400';
   }
-  return 'bg-slate-500';
+  return 'bg-slate-400';
 });
 </script>

@@ -3,14 +3,14 @@
     <!-- Header Command Area -->
     <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-ops-border">
       <div>
-        <div class="text-2xs font-mono uppercase text-purple-400">Subsystem 07 / Administrative Governance</div>
+        <div class="text-2xs font-mono uppercase text-ops-text-dim">Subsystem 07 / Administrative Governance</div>
         <h1 class="text-lg font-bold text-ops-text-bright font-sans">Operator Account Directory</h1>
       </div>
 
       <div class="flex items-center gap-2">
         <button
           @click="showCreateModal = true"
-          class="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
+          class="px-3 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
         >
           <span>+</span>
           <span>Provision New Operator</span>
@@ -32,7 +32,7 @@
               <th class="p-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-ops-border/60">
+          <tbody class="divide-y divide-ops-border">
             <tr
               v-for="op in authStore.operators"
               :key="op._id"
@@ -41,7 +41,7 @@
               <!-- Operator Name -->
               <td class="p-3 whitespace-nowrap">
                 <div class="font-bold text-ops-text-bright font-mono text-xs">{{ op.username }}</div>
-                <div v-if="op._id === authStore.user?._id" class="text-2xs text-emerald-400 font-mono">Current Session</div>
+                <div v-if="op._id === authStore.user?._id" class="text-2xs text-emerald-600 dark:text-emerald-400 font-mono">Current Session</div>
               </td>
 
               <!-- Email -->
@@ -56,16 +56,7 @@
 
               <!-- Role -->
               <td class="p-3 whitespace-nowrap">
-                <span
-                  :class="[
-                    'px-2 py-0.5 rounded text-2xs font-mono font-bold uppercase',
-                    op.role === 'admin'
-                      ? 'bg-purple-950/80 text-purple-300 border border-purple-800'
-                      : op.role === 'liveops_editor'
-                      ? 'bg-blue-950/80 text-blue-300 border border-blue-800'
-                      : 'bg-slate-800 text-slate-300 border border-slate-700'
-                  ]"
-                >
+                <span class="px-2 py-0.5 rounded text-2xs font-mono font-bold uppercase bg-ops-canvas text-ops-text-bright border border-ops-border">
                   {{ op.role === 'admin' ? 'Root Admin' : op.role === 'liveops_editor' ? 'Live-Ops Editor' : 'QA Auditor' }}
                 </span>
               </td>

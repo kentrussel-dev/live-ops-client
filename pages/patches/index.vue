@@ -52,7 +52,7 @@
 
             <div class="mt-2 pt-2 border-t border-ops-border/60 flex items-center justify-between text-2xs font-mono text-ops-text-dim">
               <span>Target: {{ formatShortDate(p.targetPublishTime) }}</span>
-              <span v-if="p.requiresMaintenance" class="text-amber-400 font-semibold">⚠ Downtime: {{ p.maintenanceDurationMinutes }}m</span>
+              <span v-if="p.requiresMaintenance" class="text-amber-400 font-semibold">Downtime: {{ p.maintenanceDurationMinutes }}m</span>
             </div>
           </div>
         </div>

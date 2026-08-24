@@ -17,7 +17,7 @@
           <span>Schedule New Event</span>
         </button>
         <div v-else class="text-2xs font-mono text-ops-text-dim px-2 py-1 bg-ops-obsidian rounded border border-ops-border">
-          🔒 Read-only QA Mode
+          Read-only QA Mode
         </div>
       </div>
     </div>

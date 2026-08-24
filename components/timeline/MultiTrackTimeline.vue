@@ -1,7 +1,7 @@
 <template>
   <div class="bg-ops-surface border border-ops-border rounded flex flex-col overflow-hidden">
     <!-- Controls Header -->
-    <div class="p-3 border-b border-ops-border bg-ops-subtle/50 flex flex-wrap items-center justify-between gap-3">
+    <div class="p-3 border-b border-ops-border bg-ops-subtle flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <span class="text-xs font-mono font-bold tracking-wider text-ops-text-bright uppercase">Multi-Track Operations Matrix</span>
@@ -64,17 +64,16 @@
           class="px-2.5 py-1 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright text-xs font-mono rounded flex items-center gap-1.5 transition"
           title="Scroll viewport to current timestamp"
         >
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
           <span>Jump to NOW</span>
         </button>
       </div>
     </div>
 
     <!-- Timeline Scroll Container -->
-    <div ref="scrollContainer" class="overflow-x-auto relative min-h-[380px] bg-ops-obsidian/70">
+    <div ref="scrollContainer" class="overflow-x-auto relative min-h-[380px] bg-ops-canvas">
       <div class="min-w-[960px] pb-4 select-none relative">
         <!-- Time Ruler Header -->
-        <div class="h-9 border-b border-ops-border bg-ops-surface/80 sticky top-0 z-20 flex items-center">
+        <div class="h-9 border-b border-ops-border bg-ops-surface sticky top-0 z-20 flex items-center">
           <div class="w-40 shrink-0 px-3 text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim border-r border-ops-border">
             TRACK / SYSTEM
           </div>
@@ -83,7 +82,7 @@
               v-for="(tick, idx) in timeTicks"
               :key="idx"
               :style="{ left: `${tick.percent}%` }"
-              class="absolute top-0 bottom-0 border-l border-ops-border/60 flex items-center pl-1.5 pointer-events-none"
+              class="absolute top-0 bottom-0 border-l border-ops-border-subtle flex items-center pl-1.5 pointer-events-none"
             >
               <span class="text-2xs font-mono text-ops-text-dim tabular-nums">
                 {{ tick.label }}
@@ -98,25 +97,24 @@
           :style="{ left: `calc(10rem + (100% - 10rem) * ${nowPercent / 100})` }"
           class="absolute top-0 bottom-0 z-20 pointer-events-none flex flex-col items-center"
         >
-          <div class="bg-emerald-500 text-ops-obsidian font-mono font-bold text-2xs px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.8)]">
+          <div class="bg-ops-blue text-white font-mono font-bold text-2xs px-1.5 py-0.5 rounded shadow">
             NOW
           </div>
-          <div class="w-px flex-1 bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+          <div class="w-px flex-1 bg-ops-blue-glow shadow-[0_0_8px_var(--ops-blue)]" />
         </div>
 
         <!-- Track 1: Server Maintenance & Patches -->
-        <div class="border-b border-ops-border/70 flex items-stretch min-h-[76px] hover:bg-ops-surface/20 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface/60 flex flex-col justify-center">
-            <div class="text-xs font-mono font-semibold text-ops-text-bright flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-sm bg-blue-500" />
-              <span>Patches & Maint</span>
+        <div class="border-b border-ops-border flex items-stretch min-h-[76px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+            <div class="text-xs font-mono font-semibold text-ops-text-bright">
+              Patches & Maint
             </div>
             <div class="text-2xs text-ops-text-dim mt-0.5">Deployment windows</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <!-- Background Grid Lines -->
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
-              <div v-for="i in 12" :key="i" class="border-r border-ops-border/20 h-full" />
+              <div v-for="i in 12" :key="i" class="border-r border-ops-border-subtle h-full" />
             </div>
 
             <!-- Items -->
@@ -126,32 +124,30 @@
               @click="timelineStore.selectItem(item)"
               :style="getItemStyle(item)"
               :class="[
-                'absolute h-9 rounded px-2 flex items-center gap-1.5 cursor-pointer shadow-sm text-xs font-mono transition border',
-                'bg-blue-950/80 hover:bg-blue-900 border-blue-600/60 text-blue-200 hover:border-blue-400'
+                'absolute h-9 rounded px-2.5 flex items-center gap-1.5 cursor-pointer shadow-sm text-xs font-mono transition border',
+                'dark:bg-blue-950/80 dark:hover:bg-blue-900 dark:border-blue-600/70 dark:text-blue-200 bg-blue-100 hover:bg-blue-200 border-blue-300 text-blue-900'
               ]"
               :title="`${item.title} (${item.subtitle})`"
             >
-              <span class="font-bold shrink-0">⚡</span>
               <span class="truncate font-semibold">{{ item.title }}</span>
             </div>
-            <div v-if="timelineStore.filteredTracks.patches.length === 0" class="h-9 flex items-center pl-4 text-2xs text-ops-text-dark font-mono">
+            <div v-if="timelineStore.filteredTracks.patches.length === 0" class="h-9 flex items-center pl-4 text-2xs text-ops-text-dim font-mono">
               No patch windows in this range
             </div>
           </div>
         </div>
 
         <!-- Track 2: Major In-Game Events & World Bosses -->
-        <div class="border-b border-ops-border/70 flex items-stretch min-h-[96px] hover:bg-ops-surface/20 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface/60 flex flex-col justify-center">
-            <div class="text-xs font-mono font-semibold text-ops-text-bright flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-sm bg-emerald-500" />
-              <span>Game Events</span>
+        <div class="border-b border-ops-border flex items-stretch min-h-[96px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+            <div class="text-xs font-mono font-semibold text-ops-text-bright">
+              Game Events
             </div>
             <div class="text-2xs text-ops-text-dim mt-0.5">Live raids & boosts</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
-              <div v-for="i in 12" :key="i" class="border-r border-ops-border/20 h-full" />
+              <div v-for="i in 12" :key="i" class="border-r border-ops-border-subtle h-full" />
             </div>
 
             <!-- Staggered Events -->
@@ -169,9 +165,8 @@
                 getEventTrackClass(item)
               ]"
             >
-              <span class="w-2 h-2 rounded-full shrink-0" :class="item.status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'" />
               <span class="truncate font-semibold">{{ item.title }}</span>
-              <span v-if="item.metadata?.expMultiplier" class="text-2xs bg-black/40 px-1 py-0.2 rounded text-emerald-300 font-bold">
+              <span v-if="item.metadata?.expMultiplier" class="text-2xs dark:bg-black/40 bg-emerald-200/80 px-1 py-0.2 rounded dark:text-emerald-300 text-emerald-900 font-bold">
                 {{ item.metadata.expMultiplier }}x EXP
               </span>
             </div>
@@ -179,17 +174,16 @@
         </div>
 
         <!-- Track 3: Shop & Equipment Rotations -->
-        <div class="border-b border-ops-border/70 flex items-stretch min-h-[86px] hover:bg-ops-surface/20 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface/60 flex flex-col justify-center">
-            <div class="text-xs font-mono font-semibold text-ops-text-bright flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-sm bg-purple-500" />
-              <span>Shop Rotations</span>
+        <div class="border-b border-ops-border flex items-stretch min-h-[86px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+            <div class="text-xs font-mono font-semibold text-ops-text-bright">
+              Shop Rotations
             </div>
             <div class="text-2xs text-ops-text-dim mt-0.5">Flash sales & featured gear</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
-              <div v-for="i in 12" :key="i" class="border-r border-ops-border/20 h-full" />
+              <div v-for="i in 12" :key="i" class="border-r border-ops-border-subtle h-full" />
             </div>
 
             <div
@@ -206,24 +200,22 @@
                 getShopTrackClass(item)
               ]"
             >
-              <span class="font-bold shrink-0">💎</span>
               <span class="truncate font-semibold">{{ item.title }}</span>
             </div>
           </div>
         </div>
 
         <!-- Track 4: Critical Incidents & Blocker Lifecycles -->
-        <div class="flex items-stretch min-h-[76px] hover:bg-ops-surface/20 transition">
-          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface/60 flex flex-col justify-center">
-            <div class="text-xs font-mono font-semibold text-rose-300 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-sm bg-rose-500" />
-              <span>Critical Incidents</span>
+        <div class="flex items-stretch min-h-[76px] hover:bg-ops-surface/40 transition">
+          <div class="w-40 shrink-0 p-2.5 border-r border-ops-border bg-ops-surface flex flex-col justify-center">
+            <div class="text-xs font-mono font-semibold text-rose-600 dark:text-rose-300">
+              Critical Incidents
             </div>
             <div class="text-2xs text-ops-text-dim mt-0.5">Active blocker impact</div>
           </div>
           <div class="flex-1 relative p-1.5">
             <div class="absolute inset-0 grid grid-cols-12 pointer-events-none">
-              <div v-for="i in 12" :key="i" class="border-r border-ops-border/20 h-full" />
+              <div v-for="i in 12" :key="i" class="border-r border-ops-border-subtle h-full" />
             </div>
 
             <div
@@ -231,17 +223,16 @@
               :key="item.id"
               @click="timelineStore.selectItem(item)"
               :style="getItemStyle(item)"
-              class="absolute h-9 rounded px-2.5 flex items-center gap-2 cursor-pointer shadow-md text-xs font-mono transition border bg-rose-950/80 hover:bg-rose-900 border-rose-600/70 text-rose-200 hover:border-rose-400"
+              class="absolute h-9 rounded px-2.5 flex items-center gap-2 cursor-pointer shadow-md text-xs font-mono transition border dark:bg-rose-950/80 dark:hover:bg-rose-900 dark:border-rose-600/70 dark:text-rose-200 bg-rose-100 hover:bg-rose-200 border-rose-300 text-rose-900"
             >
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" />
               <span class="truncate font-semibold">{{ item.title }}</span>
-              <span class="text-2xs bg-black/50 px-1 py-0.2 rounded text-rose-300 uppercase">
+              <span class="text-2xs dark:bg-black/50 bg-rose-200 px-1 py-0.2 rounded dark:text-rose-300 text-rose-900 uppercase">
                 {{ item.status }}
               </span>
             </div>
 
-            <div v-if="timelineStore.filteredTracks.incidents.length === 0" class="h-9 flex items-center pl-4 text-2xs text-emerald-400 font-mono">
-              ✓ No active blocker incidents in this window
+            <div v-if="timelineStore.filteredTracks.incidents.length === 0" class="h-9 flex items-center pl-4 text-2xs text-emerald-600 dark:text-emerald-400 font-mono">
+              No active blocker incidents in this window
             </div>
           </div>
         </div>
@@ -325,25 +316,25 @@ function getItemStyle(item: ITimelineTrackItem) {
 
 function getEventTrackClass(item: ITimelineTrackItem) {
   if (item.status === 'active') {
-    return 'bg-emerald-950/80 hover:bg-emerald-900 border-emerald-600/70 text-emerald-200 hover:border-emerald-400';
+    return 'dark:bg-emerald-950/80 dark:hover:bg-emerald-900 dark:border-emerald-600/70 dark:text-emerald-200 bg-emerald-100 hover:bg-emerald-200 border-emerald-300 text-emerald-900';
   }
   if (item.status === 'scheduled') {
-    return 'bg-amber-950/80 hover:bg-amber-900 border-amber-600/70 text-amber-200 hover:border-amber-400';
+    return 'dark:bg-amber-950/80 dark:hover:bg-amber-900 dark:border-amber-600/70 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900';
   }
   if (item.status === 'paused') {
-    return 'bg-rose-950/80 hover:bg-rose-900 border-rose-600/70 text-rose-200';
+    return 'dark:bg-rose-950/80 dark:hover:bg-rose-900 dark:border-rose-600/70 dark:text-rose-200 bg-rose-100 hover:bg-rose-200 border-rose-300 text-rose-900';
   }
-  return 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-300';
+  return 'dark:bg-ops-surface dark:border-ops-border dark:text-ops-text-bright bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-900';
 }
 
 function getShopTrackClass(item: ITimelineTrackItem) {
   if (item.status === 'flash_sale') {
-    return 'bg-amber-950/80 hover:bg-amber-900 border-amber-500/80 text-amber-200';
+    return 'dark:bg-amber-950/80 dark:hover:bg-amber-900 dark:border-amber-500/80 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900';
   }
   if (item.urgencyOrRarity === 'mythic') {
-    return 'bg-purple-950/80 hover:bg-purple-900 border-purple-500/80 text-purple-200';
+    return 'dark:bg-purple-950/80 dark:hover:bg-purple-900 dark:border-purple-500/80 dark:text-purple-200 bg-purple-100 hover:bg-purple-200 border-purple-300 text-purple-900';
   }
-  return 'bg-cyan-950/80 hover:bg-cyan-900 border-cyan-600/60 text-cyan-200';
+  return 'dark:bg-cyan-950/80 dark:hover:bg-cyan-900 dark:border-cyan-600/60 dark:text-cyan-200 bg-cyan-100 hover:bg-cyan-200 border-cyan-300 text-cyan-900';
 }
 
 function scrollToNow() {

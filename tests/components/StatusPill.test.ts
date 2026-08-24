@@ -12,7 +12,7 @@ describe('StatusPill Component', () => {
     });
 
     expect(wrapper.text()).toContain('ACTIVE');
-    expect(wrapper.classes()).toContain('text-emerald-300');
+    expect(wrapper.classes()).toContain('text-emerald-800');
   });
 
   it('renders critical blocker status with rose styles', () => {
@@ -22,7 +22,7 @@ describe('StatusPill Component', () => {
       },
     });
 
-    expect(wrapper.classes()).toContain('text-rose-300');
+    expect(wrapper.classes()).toContain('text-rose-800');
   });
 
   it('renders scheduled status with amber styles', () => {
@@ -32,6 +32,6 @@ describe('StatusPill Component', () => {
       },
     });
 
-    expect(wrapper.classes()).toContain('text-amber-300');
+    expect(wrapper.classes()).toContain('text-amber-800');
   });
 });

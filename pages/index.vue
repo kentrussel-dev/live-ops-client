@@ -7,7 +7,7 @@
           <span class="text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim">
             Unified Mission Control
           </span>
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </div>
         <h1 class="text-xl font-bold tracking-tight text-ops-text-bright font-sans">
           Aetheria Live-Ops Command Center
@@ -20,18 +20,16 @@
       <div class="flex items-center gap-2">
         <NuxtLink
           to="/events"
-          class="px-3 py-1.5 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright rounded text-xs font-mono transition flex items-center gap-1.5"
+          class="px-3 py-1.5 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright rounded text-xs font-mono transition"
         >
-          <span>⚡</span>
-          <span>Event Toggles</span>
+          Event Toggles
         </NuxtLink>
 
         <NuxtLink
           to="/issues"
-          class="px-3 py-1.5 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright rounded text-xs font-mono transition flex items-center gap-1.5"
+          class="px-3 py-1.5 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright rounded text-xs font-mono transition"
         >
-          <span>🐞</span>
-          <span>Known Issues ({{ issuesStore.stats.reported + issuesStore.stats.investigating }})</span>
+          Known Issues ({{ issuesStore.stats.reported + issuesStore.stats.investigating }})
         </NuxtLink>
       </div>
     </div>
@@ -41,9 +39,9 @@
       <!-- Tile 1: Active Events -->
       <div class="p-3 bg-ops-surface rounded border border-ops-border space-y-1">
         <div class="text-2xs font-mono text-ops-text-dim uppercase tracking-wider">Active Live Events</div>
-        <div class="text-xl font-mono font-bold text-emerald-400 flex items-center gap-2">
+        <div class="text-xl font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
           <span>{{ eventsStore.events.filter((e) => e.status === 'active').length }}</span>
-          <span class="text-2xs px-1.5 py-0.2 bg-emerald-950 text-emerald-300 rounded font-normal">
+          <span class="text-2xs px-1.5 py-0.2 rounded font-normal dark:bg-emerald-950 dark:text-emerald-300 bg-emerald-100 text-emerald-800 border border-emerald-300">
             {{ eventsStore.events.filter((e) => e.status === 'scheduled').length }} scheduled
           </span>
         </div>
@@ -55,9 +53,9 @@
       <!-- Tile 2: Flash Sales -->
       <div class="p-3 bg-ops-surface rounded border border-ops-border space-y-1">
         <div class="text-2xs font-mono text-ops-text-dim uppercase tracking-wider">Flash Sales & Promos</div>
-        <div class="text-xl font-mono font-bold text-amber-400 flex items-center gap-2">
+        <div class="text-xl font-mono font-bold text-amber-600 dark:text-amber-400 flex items-center gap-2">
           <span>{{ shopStore.items.filter((i) => i.rotationStatus === 'flash_sale').length }}</span>
-          <span class="text-2xs px-1.5 py-0.2 bg-amber-950 text-amber-300 rounded font-normal">
+          <span class="text-2xs px-1.5 py-0.2 rounded font-normal dark:bg-amber-950 dark:text-amber-300 bg-amber-100 text-amber-800 border border-amber-300">
             {{ shopStore.items.filter((i) => i.rotationStatus === 'featured').length }} featured
           </span>
         </div>
@@ -69,9 +67,9 @@
       <!-- Tile 3: Critical Blockers -->
       <div class="p-3 bg-ops-surface rounded border border-ops-border space-y-1">
         <div class="text-2xs font-mono text-ops-text-dim uppercase tracking-wider">Critical Blockers (P0)</div>
-        <div class="text-xl font-mono font-bold text-rose-400 flex items-center gap-2">
+        <div class="text-xl font-mono font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
           <span>{{ issuesStore.stats.criticalBlockers }}</span>
-          <span class="text-2xs px-1.5 py-0.2 bg-rose-950 text-rose-300 rounded font-normal">
+          <span class="text-2xs px-1.5 py-0.2 rounded font-normal dark:bg-rose-950 dark:text-rose-300 bg-rose-100 text-rose-800 border border-rose-300">
             {{ issuesStore.stats.reported + issuesStore.stats.investigating }} open total
           </span>
         </div>
@@ -85,7 +83,7 @@
         <div class="text-2xs font-mono text-ops-text-dim uppercase tracking-wider">Game Server Fleet</div>
         <div class="text-xl font-mono font-bold text-ops-text-bright flex items-center gap-2">
           <span>{{ serversStore.fleetSummary.onlineServers }}</span>
-          <span class="text-2xs px-1.5 py-0.2 bg-ops-border text-ops-text-dim rounded font-normal">
+          <span class="text-2xs px-1.5 py-0.2 bg-ops-canvas text-ops-text-dim border border-ops-border rounded font-normal">
             / {{ serversStore.fleetSummary.totalServers }} Online
           </span>
         </div>
@@ -98,9 +96,8 @@
     <!-- Multi-Track Operations Timeline -->
     <div class="space-y-2">
       <div class="flex items-center justify-between">
-        <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-ops-text-bright flex items-center gap-2">
-          <span>✦</span>
-          <span>Live Synchronized Schedule Matrix</span>
+        <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-ops-text-bright">
+          Live Synchronized Schedule Matrix
         </h2>
         <span class="text-2xs font-mono text-ops-text-dim">Click any track block to inspect telemetry payload</span>
       </div>
@@ -114,12 +111,11 @@
       <!-- Active Events Fast Status Toggles -->
       <div class="p-4 bg-ops-surface rounded border border-ops-border space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-ops-border">
-          <h3 class="text-xs font-mono font-bold text-ops-text-bright uppercase flex items-center gap-2">
-            <span>⚡</span>
-            <span>Live Events Control Strip</span>
+          <h3 class="text-xs font-mono font-bold text-ops-text-bright uppercase">
+            Live Events Control Strip
           </h3>
           <NuxtLink to="/events" class="text-2xs font-mono text-ops-blue-glow hover:underline">
-            View All ({{ eventsStore.events.length }}) →
+            View All ({{ eventsStore.events.length }})
           </NuxtLink>
         </div>
 
@@ -167,12 +163,11 @@
       <!-- Urgent Known Issue Triage -->
       <div class="p-4 bg-ops-surface rounded border border-ops-border space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-ops-border">
-          <h3 class="text-xs font-mono font-bold text-ops-text-bright uppercase flex items-center gap-2">
-            <span>🚨</span>
-            <span>Active Blocker Triage Pipeline</span>
+          <h3 class="text-xs font-mono font-bold text-ops-text-bright uppercase">
+            Active Blocker Triage Pipeline
           </h3>
           <NuxtLink to="/issues" class="text-2xs font-mono text-rose-400 hover:underline">
-            Open Pipeline Board →
+            Open Pipeline Board
           </NuxtLink>
         </div>
 
@@ -198,8 +193,6 @@
                 Reported by {{ iss.reportedBy }} • {{ iss.affectedCluster || 'Global' }}
               </div>
             </div>
-
-            <span class="text-ops-text-dim text-xs">→</span>
           </div>
         </div>
       </div>
