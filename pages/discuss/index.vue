@@ -183,13 +183,17 @@
       </div>
 
       <!-- Current User Mini Status Footer -->
-      <div class="p-3 border-t border-ops-border bg-ops-subtle flex items-center justify-between">
+      <div
+        @click="handleViewProfile(authStore.user)"
+        class="p-3 border-t border-ops-border bg-ops-subtle flex items-center justify-between cursor-pointer hover:bg-ops-surface transition group"
+        title="Click to view your operator profile"
+      >
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-6 h-6 rounded-full bg-ops-blue text-white text-2xs font-mono font-bold flex items-center justify-center">
+          <div class="w-6 h-6 rounded-full bg-ops-blue text-white text-2xs font-mono font-bold flex items-center justify-center shrink-0">
             {{ (authStore.user?.username || 'OP').slice(0, 2).toUpperCase() }}
           </div>
           <div class="min-w-0">
-            <div class="text-xs font-semibold text-ops-text-bright truncate">{{ authStore.user?.username }}</div>
+            <div class="text-xs font-semibold text-ops-text-bright truncate group-hover:text-ops-blue-glow">{{ authStore.user?.username }}</div>
             <div class="text-2xs font-mono text-ops-text-dim truncate">{{ authStore.user?.department || 'Operations' }}</div>
           </div>
         </div>
@@ -211,17 +215,19 @@
           </div>
           <div
             v-else
-            class="relative shrink-0"
+            @click="handleViewProfile(getDmUser(chatStore.activeChannel))"
+            class="relative shrink-0 cursor-pointer group"
+            title="Click to view operator profile"
           >
             <img
               v-if="getDmUser(chatStore.activeChannel)?.avatarUrl"
               :src="getDmUser(chatStore.activeChannel)?.avatarUrl"
               :alt="getDmDisplayName(chatStore.activeChannel)"
-              class="w-9 h-9 rounded-full object-cover border border-ops-border shadow-xs"
+              class="w-9 h-9 rounded-full object-cover border border-ops-border shadow-xs group-hover:border-ops-blue transition"
             />
             <div
               v-else
-              class="w-9 h-9 rounded-full bg-ops-obsidian border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright"
+              class="w-9 h-9 rounded-full bg-ops-obsidian border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright group-hover:border-ops-blue transition"
             >
               {{ getChannelInitials(getDmDisplayName(chatStore.activeChannel)) }}
             </div>
@@ -238,7 +244,14 @@
               <span class="font-mono text-ops-blue-glow font-bold text-sm">
                 {{ chatStore.activeChannel?.isDirectMessage ? '@' : '#' }}
               </span>
-              <h2 class="text-sm font-bold text-ops-text-bright font-sans truncate">
+              <h2
+                :class="[
+                  'text-sm font-bold text-ops-text-bright font-sans truncate',
+                  chatStore.activeChannel?.isDirectMessage ? 'hover:text-ops-blue-glow hover:underline cursor-pointer transition' : ''
+                ]"
+                @click="chatStore.activeChannel?.isDirectMessage ? handleViewProfile(getDmUser(chatStore.activeChannel)) : null"
+                :title="chatStore.activeChannel?.isDirectMessage ? 'Click to view operator profile' : ''"
+              >
                 {{ chatStore.activeChannel?.isDirectMessage ? getDmDisplayName(chatStore.activeChannel) : chatStore.activeChannel?.name }}
               </h2>
             </div>
@@ -249,8 +262,17 @@
         </div>
 
         <div class="flex items-center gap-2 text-xs font-mono text-ops-text-dim">
-          <span class="px-2 py-0.5 bg-ops-obsidian rounded border border-ops-border text-2xs">
-            {{ chatStore.activeChannel?.isDirectMessage ? 'Direct Message' : 'Public Channel' }}
+          <button
+            v-if="chatStore.activeChannel?.isDirectMessage"
+            @click="handleViewProfile(getDmUser(chatStore.activeChannel))"
+            class="px-2.5 py-1 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-blue-glow rounded text-2xs transition flex items-center gap-1"
+            title="View Profile Details"
+          >
+            <span>👤</span>
+            <span>View Profile</span>
+          </button>
+          <span v-else class="px-2 py-0.5 bg-ops-obsidian rounded border border-ops-border text-2xs">
+            Public Channel
           </span>
         </div>
       </div>
@@ -272,16 +294,20 @@
           class="flex items-start gap-3 group"
         >
           <!-- Sender Avatar with Presence Indicator -->
-          <div class="relative shrink-0 pt-0.5">
+          <div
+            @click="handleViewProfile(group.sender)"
+            class="relative shrink-0 pt-0.5 cursor-pointer group/avatar"
+            title="Click to view operator profile"
+          >
             <img
               v-if="group.sender.avatarUrl"
               :src="group.sender.avatarUrl"
               :alt="group.sender.username"
-              class="w-8 h-8 rounded-full object-cover border border-ops-border shadow-xs"
+              class="w-8 h-8 rounded-full object-cover border border-ops-border shadow-xs group-hover/avatar:border-ops-blue transition"
             />
             <div
               v-else
-              class="w-8 h-8 rounded-full bg-ops-surface border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright shadow-xs"
+              class="w-8 h-8 rounded-full bg-ops-surface border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright shadow-xs group-hover/avatar:border-ops-blue transition"
             >
               {{ (group.sender.username || 'OP').slice(0, 2).toUpperCase() }}
             </div>
@@ -298,7 +324,13 @@
           <div class="flex-1 min-w-0 space-y-1.5">
             <!-- Header: Sender Name + Timestamp + Delivery / Seen Status -->
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-xs text-ops-text-bright">{{ group.sender.username }}</span>
+              <span
+                @click="handleViewProfile(group.sender)"
+                class="font-bold text-xs text-ops-text-bright hover:text-ops-blue-glow hover:underline cursor-pointer transition"
+                title="Click to view operator profile"
+              >
+                {{ group.sender.username }}
+              </span>
               <span class="text-2xs font-mono text-ops-text-dim">- {{ formatRelativeTime(group.createdAt) }}</span>
 
               <!-- Delivery (1 Check) & Seen (2 Checks) Receipts -->
@@ -316,20 +348,164 @@
             <div class="space-y-1.5">
               <div
                 v-for="msg in group.messages"
+                :id="'msg-' + msg._id"
                 :key="msg._id"
-                class="flex flex-col items-start gap-1"
+                class="relative group/bubble flex flex-col items-start gap-0.5 transition-all duration-300 rounded-lg p-0.5"
               >
+                <!-- Quoted Reply Line (Above Message Bubble - Matching Image) -->
+                <div
+                  v-if="msg.replyTo"
+                  @click="scrollToMessage(msg.replyTo.messageId)"
+                  class="flex items-center gap-1.5 text-2xs text-ops-text-dim hover:text-ops-text-bright transition pb-0.5 cursor-pointer group/reply select-none pl-1"
+                  :title="`Jump to original message: &quot;${msg.replyTo.content}&quot;`"
+                >
+                  <!-- Curved connector branch -->
+                  <svg class="w-3.5 h-3.5 text-ops-border group-hover/reply:text-ops-blue shrink-0 -scale-y-100" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 14V7a4 4 0 014-4h7m-3-3l3 3-3 3"/>
+                  </svg>
+
+                  <!-- Quoted Avatar -->
+                  <img
+                    v-if="msg.replyTo.senderAvatarUrl"
+                    :src="msg.replyTo.senderAvatarUrl"
+                    :alt="msg.replyTo.senderName"
+                    class="w-3.5 h-3.5 rounded-full object-cover border border-ops-border shrink-0"
+                  />
+                  <div
+                    v-else
+                    class="w-3.5 h-3.5 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-text-bright shrink-0"
+                  >
+                    {{ msg.replyTo.senderName.slice(0, 1).toUpperCase() }}
+                  </div>
+
+                  <!-- Quoted user mention -->
+                  <span class="font-bold text-ops-blue-glow">@{{ msg.replyTo.senderName }}</span>
+                  <!-- Quoted snippet -->
+                  <span class="truncate max-w-xs sm:max-w-md text-ops-text-dark group-hover/reply:text-ops-text-dim">{{ msg.replyTo.content }}</span>
+                </div>
+
                 <!-- Styled Bubble Container -->
                 <div
                   :class="[
-                    'px-3.5 py-2 rounded-lg text-xs font-sans max-w-xl break-words leading-relaxed border transition shadow-xs',
+                    'px-3.5 py-2 rounded-lg text-xs font-sans max-w-xl break-words leading-relaxed border transition shadow-xs relative min-w-[200px] sm:min-w-[240px]',
                     group.isSelf
                       ? 'bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-950 dark:text-emerald-100 font-medium'
                       : 'bg-sky-500/10 dark:bg-sky-950/40 border-sky-500/30 text-sky-950 dark:text-sky-100 font-medium'
                   ]"
                 >
-                  {{ msg.content }}
+                  <span v-html="renderMessageHtml(msg.content)" />
+
+                  <!-- Floating Action Bar: 6 Mandatory Emotes + (+) More Picker Button + (↩) Reply Button -->
+                  <div
+                    class="absolute -top-3.5 right-0 sm:right-1 opacity-0 group-hover/bubble:opacity-100 transition-all duration-150 bg-ops-surface/95 backdrop-blur-md border border-ops-border rounded-full shadow-xl px-2 py-0.5 flex items-center gap-1.5 z-30 pointer-events-none group-hover/bubble:pointer-events-auto whitespace-nowrap"
+                  >
+                    <!-- 1. Thumbs up (👍) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '👍')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="1. Thumbs up (👍)"
+                    >
+                      👍
+                    </button>
+
+                    <!-- 2. Heart react (❤️) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '❤️')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="2. Heart react (❤️)"
+                    >
+                      ❤️
+                    </button>
+
+                    <!-- 3. Thumbs down (👎) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '👎')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="3. Thumbs down (👎)"
+                    >
+                      👎
+                    </button>
+
+                    <!-- 4. Laugh (😂) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '😂')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="4. Laugh (😂)"
+                    >
+                      😂
+                    </button>
+
+                    <!-- 5. Sad (😢) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '😢')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="5. Sad (😢)"
+                    >
+                      😢
+                    </button>
+
+                    <!-- 6. Sad cry (😭) -->
+                    <button
+                      type="button"
+                      @click.stop="handleQuickReact(msg._id, '😭')"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none"
+                      title="6. Sad cry (😭)"
+                    >
+                      😭
+                    </button>
+
+                    <div class="w-px h-3 bg-ops-border mx-0.5" />
+
+                    <!-- 7. (+) Access All Emotes Button -->
+                    <div class="relative">
+                      <button
+                        type="button"
+                        @click.stop="toggleEmojiPicker(msg._id)"
+                        class="w-5 h-5 rounded-full bg-ops-obsidian hover:bg-ops-blue hover:text-white border border-ops-border text-ops-text-dim text-2xs font-mono font-bold flex items-center justify-center transition"
+                        title="7. Open All Emotes Picker (+)"
+                      >
+                        +
+                      </button>
+
+                      <!-- Full Emoji Picker Popover for this Message -->
+                      <ChatEmojiPickerPopover
+                        v-if="activeEmojiPickerMessageId === msg._id"
+                        :is-open="true"
+                        @select="(emoji) => handleEmojiPickerSelect(msg._id, emoji)"
+                        @close="activeEmojiPickerMessageId = null"
+                      />
+                    </div>
+
+                    <div class="w-px h-3 bg-ops-border mx-0.5" />
+
+                    <!-- Reply Action Button (↩) -->
+                    <button
+                      type="button"
+                      @click.stop="handleInitiateReply(msg, group.sender)"
+                      class="hover:scale-125 active:scale-95 transition text-xs select-none px-1 text-ops-text-dim hover:text-ops-blue-glow font-bold flex items-center gap-1"
+                      title="Reply to message (↩)"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 17 4 12 9 7" />
+                        <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
+
+                <!-- Rich Link Preview Embeds (e.g. Google Meet, Zoom, GitHub, Figma, YouTube, etc.) -->
+                <template v-if="extractUrls(msg.content).length > 0">
+                  <ChatRichLinkPreview
+                    v-for="url in extractUrls(msg.content)"
+                    :key="url"
+                    :url="url"
+                  />
+                </template>
 
                 <!-- Attachments -->
                 <div v-if="msg.attachments && msg.attachments.length > 0" class="flex flex-wrap gap-2 pt-0.5">
@@ -343,25 +519,43 @@
                   </div>
                 </div>
 
-                <!-- Reaction Badges -->
+                <!-- Active Reaction Badges -->
                 <div v-if="msg.reactions && msg.reactions.length > 0" class="flex flex-wrap items-center gap-1.5 pt-0.5">
                   <button
                     v-for="(react, rIdx) in msg.reactions"
                     :key="rIdx"
-                    @click="chatStore.toggleReaction(msg._id, react.reaction)"
-                    class="px-2 py-0.5 rounded text-2xs font-mono bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright flex items-center gap-1 transition"
+                    @click="handleQuickReact(msg._id, react.reaction)"
+                    :class="[
+                      'px-2 py-0.5 rounded-full text-2xs font-mono border flex items-center gap-1 transition shadow-2xs select-none',
+                      hasUserReacted(react)
+                        ? 'bg-ops-blue/20 border-ops-blue text-ops-text-bright font-bold'
+                        : 'bg-ops-obsidian hover:bg-ops-surface border-ops-border text-ops-text-dim hover:text-ops-text-bright'
+                    ]"
+                    :title="react.users.join(', ')"
                   >
                     <span>{{ react.reaction }}</span>
                     <span>{{ react.users.length }}</span>
                   </button>
 
-                  <button
-                    @click="chatStore.toggleReaction(msg._id, '👍')"
-                    class="opacity-0 group-hover:opacity-100 text-2xs px-1.5 py-0.5 rounded bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-dim transition"
-                    title="React 👍"
-                  >
-                    👍
-                  </button>
+                  <!-- Small '+' Button to Add Reaction -->
+                  <div class="relative">
+                    <button
+                      type="button"
+                      @click.stop="toggleEmojiPicker(msg._id)"
+                      class="w-5 h-5 rounded-full bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-dim hover:text-ops-text-bright text-3xs font-mono font-bold flex items-center justify-center transition"
+                      title="Add reaction (+)"
+                    >
+                      +
+                    </button>
+
+                    <!-- Popover if opened via '+' on badge row -->
+                    <ChatEmojiPickerPopover
+                      v-if="activeEmojiPickerMessageId === msg._id"
+                      :is-open="true"
+                      @select="(emoji) => handleEmojiPickerSelect(msg._id, emoji)"
+                      @close="activeEmojiPickerMessageId = null"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -376,18 +570,64 @@
         </span>
       </div>
 
+      <!-- Replying Banner (Active Reply Preview) -->
+      <div
+        v-if="activeReplyTarget"
+        class="px-4 py-2 bg-ops-subtle border-t border-ops-border flex items-center justify-between text-xs animate-fade-in"
+      >
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-ops-blue-glow font-bold font-mono text-2xs flex items-center gap-1 shrink-0">
+            <span>↩</span>
+            <span>Replying to @{{ activeReplyTarget.senderName }}</span>
+          </span>
+          <span class="text-ops-text-dim truncate text-2xs italic font-sans max-w-sm sm:max-w-md">
+            "{{ activeReplyTarget.content }}"
+          </span>
+        </div>
+        <button
+          type="button"
+          @click="activeReplyTarget = null"
+          class="text-ops-text-dim hover:text-ops-text-bright text-xs font-mono px-1.5 py-0.5 hover:bg-ops-surface rounded transition shrink-0"
+          title="Cancel reply (Esc)"
+        >
+          ✕
+        </button>
+      </div>
+
       <!-- Bottom Message Composer -->
       <div class="p-3 border-t border-ops-border bg-ops-surface">
         <form @submit.prevent="handleSendMessage" class="flex items-center gap-2">
-          <div class="flex-1 relative">
+          <div class="flex-1 relative flex items-center">
             <textarea
+              ref="messageInputRef"
               v-model="messageInput"
               @keydown.enter.exact.prevent="handleSendMessage"
+              @keydown.esc.exact="activeReplyTarget = null"
               @input="handleInputTyping"
-              :placeholder="`Message #${chatStore.activeChannel?.name || 'channel'}...`"
+              :placeholder="activeReplyTarget ? `Reply to @${activeReplyTarget.senderName}...` : `Message #${chatStore.activeChannel?.name || 'channel'}...`"
               rows="1"
-              class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright placeholder:text-ops-text-dark outline-none focus:border-ops-blue resize-none font-sans"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 pr-10 text-xs text-ops-text-bright placeholder:text-ops-text-dark outline-none focus:border-ops-blue resize-none font-sans"
             />
+
+            <!-- Composer Emoji Insert Button -->
+            <div class="absolute right-2 top-1.5">
+              <button
+                type="button"
+                @click.stop="showComposerEmojiPicker = !showComposerEmojiPicker"
+                class="p-1 text-base hover:scale-125 transition text-ops-text-dim hover:text-ops-text-bright select-none"
+                title="Insert Emoji"
+              >
+                😊
+              </button>
+
+              <!-- Composer Emoji Picker Popover -->
+              <ChatEmojiPickerPopover
+                v-if="showComposerEmojiPicker"
+                :is-open="true"
+                @select="handleComposerEmojiSelect"
+                @close="showComposerEmojiPicker = false"
+              />
+            </div>
           </div>
 
           <button
@@ -395,7 +635,7 @@
             :disabled="chatStore.isSending || !messageInput.trim()"
             class="px-4 py-2 bg-ops-blue hover:bg-ops-blue-glow disabled:opacity-50 text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow shrink-0"
           >
-            <span>SEND</span>
+            <span>{{ activeReplyTarget ? 'REPLY' : 'SEND' }}</span>
           </button>
         </form>
       </div>
@@ -464,14 +704,28 @@
           <button @click="showStartDmModal = false" class="text-ops-text-dim hover:text-ops-text-bright font-mono">✕</button>
         </div>
 
-        <div class="p-4 space-y-2 max-h-80 overflow-y-auto">
+        <!-- Search Input Filter -->
+        <div class="p-3 border-b border-ops-border bg-ops-obsidian">
+          <input
+            v-model="operatorSearchQuery"
+            type="text"
+            placeholder="Search colleagues by name or department..."
+            class="w-full bg-ops-surface border border-ops-border rounded px-3 py-1.5 text-xs text-ops-text-bright placeholder-ops-text-dark font-sans outline-none focus:border-ops-blue"
+          />
+        </div>
+
+        <div class="p-3 space-y-2 max-h-80 overflow-y-auto">
+          <div v-if="availableDmOperators.length === 0" class="p-6 text-center text-ops-text-dim font-mono text-xs">
+            No matching operators found
+          </div>
+
           <div
-            v-for="op in chatStore.operators.filter((u) => u._id !== authStore.user?._id && u.username !== authStore.user?.username)"
+            v-for="op in availableDmOperators"
             :key="op._id"
             @click="handleSelectOperatorDM(op._id)"
-            class="p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover rounded border border-ops-border flex items-center justify-between cursor-pointer transition"
+            class="p-2.5 bg-ops-obsidian hover:bg-ops-surface-hover rounded border border-ops-border flex items-center justify-between cursor-pointer transition group"
           >
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
               <div class="relative shrink-0">
                 <img
                   v-if="op.avatarUrl"
@@ -492,12 +746,12 @@
                   ]"
                 />
               </div>
-              <div>
-                <div class="font-bold text-ops-text-bright">{{ op.username }}</div>
-                <div class="text-2xs text-ops-text-dim">{{ op.department }}</div>
+              <div class="min-w-0">
+                <div class="font-bold text-ops-text-bright truncate group-hover:text-ops-blue-glow">{{ op.username }}</div>
+                <div class="text-2xs text-ops-text-dim truncate">{{ op.position || op.department }}</div>
               </div>
             </div>
-            <span class="text-2xs font-mono text-ops-blue-glow">Message →</span>
+            <span class="text-2xs font-mono text-ops-blue-glow shrink-0">Message →</span>
           </div>
         </div>
       </div>
@@ -519,12 +773,52 @@ const chatStore = useChatStore();
 const notificationsStore = useNotificationsStore();
 
 const messageInput = ref('');
+const messageInputRef = ref<HTMLTextAreaElement | null>(null);
 const messagesContainer = ref<HTMLElement | null>(null);
 const showCreateChannelModal = ref(false);
 const showStartDmModal = ref(false);
+const operatorSearchQuery = ref('');
 const newChannelName = ref('');
 const newChannelDescription = ref('');
+const activeEmojiPickerMessageId = ref<string | null>(null);
+const showComposerEmojiPicker = ref(false);
+const activeReplyTarget = ref<{
+  messageId: string;
+  senderName: string;
+  senderAvatarUrl?: string;
+  content: string;
+} | null>(null);
 let typingTimeout: any = null;
+
+const availableDmOperators = computed(() => {
+  const list = (chatStore.operators.length > 0 ? chatStore.operators : authStore.operators) || [];
+  const currentId = authStore.user?._id?.toString();
+  const currentUsername = authStore.user?.username?.toLowerCase();
+
+  return list.filter((u) => {
+    if (!u) return false;
+    const uId = (u._id || '').toString();
+    const uName = (u.username || '').toLowerCase();
+    if (uId && currentId && uId === currentId) return false;
+    if (uName && currentUsername && uName === currentUsername) return false;
+    if (operatorSearchQuery.value.trim()) {
+      const q = operatorSearchQuery.value.toLowerCase();
+      return (
+        uName.includes(q) ||
+        (u.department && u.department.toLowerCase().includes(q)) ||
+        (u.position && u.position.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+});
+
+watch(showStartDmModal, (open) => {
+  if (open) {
+    operatorSearchQuery.value = '';
+    chatStore.fetchOperators();
+  }
+});
 
 function isSelfDm(dm: any): boolean {
   if (!dm || !dm.isDirectMessage) return false;
@@ -712,11 +1006,39 @@ function handleInputTyping() {
 async function handleSendMessage() {
   if (!messageInput.value.trim()) return;
   const content = messageInput.value;
+  const replyTarget = activeReplyTarget.value ? { ...activeReplyTarget.value } : undefined;
+
   messageInput.value = '';
+  activeReplyTarget.value = null;
   chatStore.emitTyping(false);
 
-  await chatStore.sendMessage(content);
+  await chatStore.sendMessage(content, undefined, undefined, replyTarget);
   scrollToBottom();
+}
+
+function handleInitiateReply(msg: any, sender: any) {
+  if (!msg) return;
+  activeReplyTarget.value = {
+    messageId: msg._id,
+    senderName: sender?.username || msg.sender?.username || 'Operator',
+    senderAvatarUrl: sender?.avatarUrl || msg.sender?.avatarUrl || '',
+    content: msg.content,
+  };
+  nextTick(() => {
+    messageInputRef.value?.focus();
+  });
+}
+
+function scrollToMessage(messageId: string) {
+  if (!messageId) return;
+  const el = document.getElementById(`msg-${messageId}`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('ring-2', 'ring-ops-blue', 'bg-ops-blue/20');
+    setTimeout(() => {
+      el.classList.remove('ring-2', 'ring-ops-blue', 'bg-ops-blue/20');
+    }, 2000);
+  }
 }
 
 async function handleSelectChannel(ch: any) {
@@ -736,6 +1058,67 @@ async function handleSelectOperatorDM(userId: string) {
   showStartDmModal.value = false;
   await chatStore.startDirectMessage(userId);
   scrollToBottom();
+}
+
+const URL_REGEX = /(?:https?:\/\/|www\.)[^\s<]+[^\s<.,:;"')\]]|(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|io|gg|app|dev|co|us|tv|ai|ph|gov|edu|me)(?:\/[^\s<]*[^\s<.,:;"')\]])?/gi;
+
+function normalizeUrl(rawUrl: string): string {
+  if (!rawUrl) return '';
+  const trimmed = rawUrl.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function renderMessageHtml(content: string): string {
+  if (!content) return '';
+  const escaped = content
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return escaped.replace(URL_REGEX, (matchedUrl) => {
+    const fullHref = normalizeUrl(matchedUrl);
+    return `<a href="${fullHref}" target="_blank" rel="noopener noreferrer" class="text-ops-blue hover:text-ops-blue-glow underline font-mono break-all font-semibold cursor-pointer" onclick="event.stopPropagation()">${matchedUrl}</a>`;
+  });
+}
+
+function extractUrls(content: string): string[] {
+  if (!content) return [];
+  const matches = content.match(URL_REGEX);
+  if (!matches) return [];
+  return Array.from(new Set(matches.map((m) => normalizeUrl(m))));
+}
+
+function handleViewProfile(userOrSender: any) {
+  if (!userOrSender) return;
+  authStore.openProfile(userOrSender);
+}
+
+function hasUserReacted(react: { reaction: string; users: string[] }): boolean {
+  if (!react || !authStore.user?.username) return false;
+  return react.users.includes(authStore.user.username);
+}
+
+function handleQuickReact(messageId: string, emoji: string) {
+  chatStore.toggleReaction(messageId, emoji);
+}
+
+function toggleEmojiPicker(messageId: string) {
+  if (activeEmojiPickerMessageId.value === messageId) {
+    activeEmojiPickerMessageId.value = null;
+  } else {
+    activeEmojiPickerMessageId.value = messageId;
+  }
+}
+
+function handleEmojiPickerSelect(messageId: string, emoji: string) {
+  chatStore.toggleReaction(messageId, emoji);
+  activeEmojiPickerMessageId.value = null;
+}
+
+function handleComposerEmojiSelect(emoji: string) {
+  messageInput.value += emoji;
+  showComposerEmojiPicker.value = false;
 }
 
 async function handleCreateChannelSubmit() {

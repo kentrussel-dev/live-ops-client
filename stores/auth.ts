@@ -160,10 +160,49 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const viewedProfile = ref<any | null>(null);
+  const isProfileModalOpen = ref(false);
+  const isPhotoZoomOpen = ref(false);
+
+  async function fetchUserProfile(idOrUsername: string): Promise<any | null> {
+    try {
+      const api = useApi();
+      const res = await api.get(`/auth/profile/${encodeURIComponent(idOrUsername)}`);
+      if (res.success && res.data?.profile) {
+        return res.data.profile;
+      }
+      return null;
+    } catch (err) {
+      console.error('[fetchUserProfile Error]:', err);
+      return null;
+    }
+  }
+
+  async function openProfile(userOrId: any) {
+    if (!userOrId) return;
+    const id = typeof userOrId === 'object' ? (userOrId._id || userOrId.username) : userOrId;
+    if (typeof userOrId === 'object') {
+      viewedProfile.value = { ...userOrId };
+    }
+    isProfileModalOpen.value = true;
+    const profile = await fetchUserProfile(id);
+    if (profile) {
+      viewedProfile.value = profile;
+    }
+  }
+
+  function closeProfile() {
+    isProfileModalOpen.value = false;
+    isPhotoZoomOpen.value = false;
+    viewedProfile.value = null;
+  }
+
   function logout() {
     token.value = null;
     user.value = null;
     operators.value = [];
+    viewedProfile.value = null;
+    isProfileModalOpen.value = false;
     tokenCookie.value = null;
     userCookie.value = null;
   }
@@ -173,6 +212,9 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     role,
     operators,
+    viewedProfile,
+    isProfileModalOpen,
+    isPhotoZoomOpen,
     isLoading,
     isAuthenticated,
     canEdit,
@@ -184,6 +226,9 @@ export const useAuthStore = defineStore('auth', () => {
     bootstrapWithMasterKey,
     fetchCurrentUser,
     fetchOperators,
+    fetchUserProfile,
+    openProfile,
+    closeProfile,
     createOperator,
     deleteOperator,
     logout,

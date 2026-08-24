@@ -16,6 +16,9 @@
 
     <!-- Global Toast Container -->
     <CommonToastContainer />
+
+    <!-- Global Operator Profile Modal & Closer Look Lightbox -->
+    <CommonUserProfileModal />
   </div>
 </template>
 

@@ -3,11 +3,31 @@
     :style="{ width: isCollapsed ? '52px' : `${sidebarWidth}px` }"
     class="relative bg-ops-surface border-r border-ops-border flex flex-col justify-between select-none shrink-0 h-[calc(100vh-2.75rem)] sticky top-11 transition-[width] duration-150 ease-out"
   >
-    <!-- Top Toggle Bar -->
-    <div class="px-2.5 py-1.5 h-8 border-b border-ops-border flex items-center justify-between bg-ops-subtle">
-      <div v-if="!isCollapsed" class="text-2xs font-mono font-bold uppercase tracking-wider text-ops-text-dim px-0.5 truncate">
-        Subsystems
+    <!-- Top Navigation & Toggle Bar with Browser-like Back and Forward Controls -->
+    <div class="px-2 py-1.5 h-9 border-b border-ops-border flex items-center justify-between bg-ops-subtle gap-1.5">
+      <!-- Browser History Navigation Buttons (Back & Forward) -->
+      <div v-if="!isCollapsed" class="flex items-center gap-1">
+        <button
+          @click="handleNavigateBack"
+          class="w-6 h-6 rounded bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright hover:text-ops-blue-glow transition flex items-center justify-center text-xs font-mono font-bold shadow-xs active:scale-95"
+          title="Go Back to Previous Page (Browser Undo / Back)"
+        >
+          ←
+        </button>
+
+        <button
+          @click="handleNavigateForward"
+          class="w-6 h-6 rounded bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-bright hover:text-ops-blue-glow transition flex items-center justify-center text-xs font-mono font-bold shadow-xs active:scale-95"
+          title="Go Forward to Next Page (Browser Redo / Forward)"
+        >
+          →
+        </button>
+
+        <span class="text-3xs font-mono font-bold uppercase tracking-wider text-ops-text-dim px-1 truncate">
+          Subsystems
+        </span>
       </div>
+
       <button
         @click="toggleCollapse"
         class="p-1 hover:bg-ops-surface-hover rounded text-ops-text-dim hover:text-ops-text-bright font-mono text-xs transition flex items-center justify-center"
@@ -271,7 +291,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
 import { useEventsStore } from '~/stores/events';
 import { useIssuesStore } from '~/stores/issues';
@@ -282,6 +302,7 @@ import { usePatchesStore } from '~/stores/patches';
 import { useChatStore } from '~/stores/chat';
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 const eventsStore = useEventsStore();
 const issuesStore = useIssuesStore();
@@ -290,6 +311,18 @@ const serversStore = useServersStore();
 const notificationsStore = useNotificationsStore();
 const patchesStore = usePatchesStore();
 const chatStore = useChatStore();
+
+function handleNavigateBack() {
+  if (process.client) {
+    router.back();
+  }
+}
+
+function handleNavigateForward() {
+  if (process.client) {
+    router.forward();
+  }
+}
 
 const gatewayStatus = computed(() => {
   if (chatStore.isConnected) return 'ONLINE';

@@ -2,11 +2,16 @@
   <header class="h-11 bg-ops-surface border-b border-ops-border px-3.5 flex items-center justify-between select-none z-30 sticky top-0">
     <!-- Left: Brand / System Status & Live UTC Clock -->
     <div class="flex items-center gap-4 min-w-0">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-        <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase">Aetheria Ops</span>
+      <!-- Clickable Brand / System Logo -> Navigates to Ops Matrix (/) -->
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-2 cursor-pointer hover:opacity-90 transition group focus:outline-none"
+        title="Return to Ops Matrix Dashboard"
+      >
+        <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_8px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform" />
+        <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase group-hover:text-ops-blue-glow transition-colors">Aetheria Ops</span>
         <span class="text-xs px-1.5 py-0.2 font-mono bg-ops-canvas text-ops-text-dim border border-ops-border rounded text-2xs uppercase">{{ runtimeEnvShort }}</span>
-      </div>
+      </NuxtLink>
 
       <div class="h-3.5 w-px bg-ops-border hidden sm:block" />
 
@@ -188,6 +193,16 @@
 
           <!-- Menu Items List -->
           <div class="space-y-0.5">
+            <!-- View Profile Button -->
+            <button
+              type="button"
+              @click="handleOpenMyProfile"
+              class="w-full text-left px-2.5 py-1.5 text-xs text-ops-text-bright hover:bg-ops-surface-hover rounded flex items-center gap-2 transition font-medium"
+            >
+              <span>👤</span>
+              <span>View Operator Profile</span>
+            </button>
+
             <!-- Theme Menu Item with Flyout Side-Panel Dropdown & Hover Delay -->
             <div
               class="relative"
@@ -561,6 +576,14 @@ onUnmounted(() => {
   if (themeCloseTimer) clearTimeout(themeCloseTimer);
   document.removeEventListener('click', handleClickOutside);
 });
+
+function handleOpenMyProfile() {
+  showUserMenu.value = false;
+  showThemePanel.value = false;
+  if (authStore.user) {
+    authStore.openProfile(authStore.user);
+  }
+}
 
 function handleLogout() {
   showUserMenu.value = false;

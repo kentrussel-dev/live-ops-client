@@ -218,7 +218,13 @@ export const useChatStore = defineStore('chat', () => {
   async function sendMessage(
     content: string,
     recipientId?: string,
-    attachments?: any[]
+    attachments?: any[],
+    replyTo?: {
+      messageId: string;
+      senderName: string;
+      senderAvatarUrl?: string;
+      content: string;
+    }
   ): Promise<boolean> {
     if (!activeChannel.value) return false;
     isSending.value = true;
@@ -234,6 +240,7 @@ export const useChatStore = defineStore('chat', () => {
           content,
           recipientId,
           attachments,
+          replyTo,
         });
         isSending.value = false;
         return true;
@@ -245,6 +252,7 @@ export const useChatStore = defineStore('chat', () => {
         content,
         recipientId,
         attachments,
+        replyTo,
       });
 
       if (res.success && res.data?.message) {
