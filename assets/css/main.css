@@ -2,21 +2,165 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================================
+   8 COLOR PALETTE THEMES (4 THEME FAMILIES x LIGHT/DARK)
+   60-30-10 Minimalist Structure:
+   60% Dominant Background, 30% Secondary Surface/Text, 10% Accent
+   ======================================================== */
+
+:root,
+.theme-tech-slate-dark {
+  --ops-obsidian: #0a0e14;
+  --ops-canvas: #0e131b;
+  --ops-surface: #121820;
+  --ops-surface-hover: #1a232f;
+  --ops-subtle: #151d27;
+  --ops-border: #222f3e;
+  --ops-border-light: #2c3e53;
+  --ops-text-bright: #f0f6fc;
+  --ops-text-base: #c9d1d9;
+  --ops-text-dim: #7d8c9e;
+  --ops-text-dark: #485563;
+  --ops-blue: #2563eb;
+  --ops-blue-glow: #38bdf8;
+  color-scheme: dark;
+}
+
+.theme-tech-slate-light {
+  --ops-obsidian: #f1f5f9;
+  --ops-canvas: #f8fafc;
+  --ops-surface: #ffffff;
+  --ops-surface-hover: #f1f5f9;
+  --ops-subtle: #f8fafc;
+  --ops-border: #cbd5e1;
+  --ops-border-light: #e2e8f0;
+  --ops-text-bright: #0f172a;
+  --ops-text-base: #334155;
+  --ops-text-dim: #64748b;
+  --ops-text-dark: #94a3b8;
+  --ops-blue: #2563eb;
+  --ops-blue-glow: #1d4ed8;
+  color-scheme: light;
+}
+
+.theme-emerald-dark {
+  --ops-obsidian: #0d0d0d;
+  --ops-canvas: #121212;
+  --ops-surface: #191919;
+  --ops-surface-hover: #222222;
+  --ops-subtle: #161616;
+  --ops-border: #2a2a2a;
+  --ops-border-light: #383838;
+  --ops-text-bright: #f9fafb;
+  --ops-text-base: #e5e7eb;
+  --ops-text-dim: #9ca3af;
+  --ops-text-dark: #6b7280;
+  --ops-blue: #059669;
+  --ops-blue-glow: #34d399;
+  color-scheme: dark;
+}
+
+.theme-emerald-light {
+  --ops-obsidian: #e5e7eb;
+  --ops-canvas: #f9fafb;
+  --ops-surface: #ffffff;
+  --ops-surface-hover: #f3f4f6;
+  --ops-subtle: #f9fafb;
+  --ops-border: #d1d5db;
+  --ops-border-light: #e5e7eb;
+  --ops-text-bright: #111827;
+  --ops-text-base: #1f2937;
+  --ops-text-dim: #4b5563;
+  --ops-text-dark: #9ca3af;
+  --ops-blue: #059669;
+  --ops-blue-glow: #047857;
+  color-scheme: light;
+}
+
+.theme-cyberpunk-dark {
+  --ops-obsidian: #121215;
+  --ops-canvas: #18181b;
+  --ops-surface: #202024;
+  --ops-surface-hover: #27272a;
+  --ops-subtle: #1c1c20;
+  --ops-border: #333338;
+  --ops-border-light: #3f3f46;
+  --ops-text-bright: #fafafa;
+  --ops-text-base: #f4f4f5;
+  --ops-text-dim: #a1a1aa;
+  --ops-text-dark: #71717a;
+  --ops-blue: #e11d48;
+  --ops-blue-glow: #fb7185;
+  color-scheme: dark;
+}
+
+.theme-cyberpunk-light {
+  --ops-obsidian: #f5f5f4;
+  --ops-canvas: #fafaf9;
+  --ops-surface: #ffffff;
+  --ops-surface-hover: #f5f5f4;
+  --ops-subtle: #fafaf9;
+  --ops-border: #d6d3d1;
+  --ops-border-light: #e7e5e4;
+  --ops-text-bright: #1c1917;
+  --ops-text-base: #292524;
+  --ops-text-dim: #57534e;
+  --ops-text-dark: #a8a29e;
+  --ops-blue: #d946ef;
+  --ops-blue-glow: #c026d3;
+  color-scheme: light;
+}
+
+.theme-amethyst-dark {
+  --ops-obsidian: #0d0b17;
+  --ops-canvas: #120f20;
+  --ops-surface: #19152b;
+  --ops-surface-hover: #221d3b;
+  --ops-subtle: #151224;
+  --ops-border: #2e274c;
+  --ops-border-light: #3d3466;
+  --ops-text-bright: #faf8ff;
+  --ops-text-base: #ebdfff;
+  --ops-text-dim: #a89bc2;
+  --ops-text-dark: #6c5f87;
+  --ops-blue: #9333ea;
+  --ops-blue-glow: #c084fc;
+  color-scheme: dark;
+}
+
+.theme-amethyst-light {
+  --ops-obsidian: #f3eefc;
+  --ops-canvas: #faf8ff;
+  --ops-surface: #ffffff;
+  --ops-surface-hover: #f6f1fd;
+  --ops-subtle: #faf8ff;
+  --ops-border: #ddd0f5;
+  --ops-border-light: #ebe3fa;
+  --ops-text-bright: #1e1338;
+  --ops-text-base: #321f57;
+  --ops-text-dim: #6b5691;
+  --ops-text-dark: #9e8abf;
+  --ops-blue: #7e22ce;
+  --ops-blue-glow: #6b21a8;
+  color-scheme: light;
+}
+
 @layer base {
   html {
-    background-color: #0a0e14;
-    color: #c9d1d9;
+    background-color: var(--ops-obsidian);
+    color: var(--ops-text-base);
     font-family: 'Inter', sans-serif;
-    color-scheme: dark;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body {
-    @apply antialiased bg-ops-obsidian min-h-screen selection:bg-ops-blue selection:text-white;
+    @apply antialiased min-h-screen selection:bg-ops-blue selection:text-white;
+    background-color: var(--ops-obsidian);
   }
 
-  /* Accessible focus indicators */
   *:focus-visible {
-    @apply outline-none ring-2 ring-ops-blue ring-offset-2 ring-offset-ops-obsidian;
+    @apply outline-none ring-2 ring-ops-blue ring-offset-2;
+    --tw-ring-offset-color: var(--ops-obsidian);
   }
 
   /* Custom high-density scrollbar */
@@ -25,17 +169,16 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0e14;
+    background: var(--ops-obsidian);
   }
   ::-webkit-scrollbar-thumb {
-    background: #222f3e;
+    background: var(--ops-border);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #2c3e53;
+    background: var(--ops-border-light);
   }
 
-  /* Motion reduction override */
   @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
       animation-duration: 0.01ms !important;

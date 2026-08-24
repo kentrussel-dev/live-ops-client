@@ -27,8 +27,8 @@
       </template>
     </div>
 
-    <!-- Right: Critical Incident Beacon & User Account Dropdown -->
-    <div class="flex items-center gap-3">
+    <!-- Right: Critical Incident Beacon, Theme Palette Selector & User Account Dropdown -->
+    <div class="flex items-center gap-2.5">
       <!-- Critical Blocker Ticker (Only when authenticated) -->
       <NuxtLink
         v-if="authStore.isAuthenticated && criticalCount > 0"
@@ -38,6 +38,9 @@
         <span class="w-1.5 h-1.5 rounded-full bg-rose-400" />
         <span>{{ criticalCount }} CRITICAL BLOCKER{{ criticalCount > 1 ? 'S' : '' }}</span>
       </NuxtLink>
+
+      <!-- Theme & 8-Color Palette Selector -->
+      <CommonThemeSelector />
 
       <!-- Authenticated User Profile Menu -->
       <div v-if="authStore.user" class="relative">
