@@ -245,11 +245,40 @@ export const useServersStore = defineStore('servers', () => {
     }
   }
 
+  function handleIncomingTelemetryTick(updatedServers: IGameServer[]) {
+    if (!Array.isArray(updatedServers)) return;
+    servers.value = updatedServers;
+
+    const totalServers = updatedServers.length;
+    const onlineServers = updatedServers.filter((s) => s.status !== 'offline').length;
+    const totalCcu = updatedServers.reduce((acc, s) => acc + (s.currentPlayers || 0), 0);
+    const totalCapacity = updatedServers.reduce((acc, s) => acc + (s.maxPlayers || 0), 0);
+    const utilizationPct = totalCapacity > 0 ? Math.round((totalCcu / totalCapacity) * 100) : 0;
+    const activeServers = updatedServers.filter((s) => s.status !== 'offline' && (s.pingMs || 0) > 0);
+    const avgPingMs = activeServers.length > 0
+      ? Math.round(activeServers.reduce((acc, s) => acc + s.pingMs, 0) / activeServers.length)
+      : 0;
+    const avgTickRateHz = activeServers.length > 0
+      ? parseFloat((activeServers.reduce((acc, s) => acc + (s.tickRateHz || 60), 0) / activeServers.length).toFixed(1))
+      : 60.0;
+
+    fleetSummary.value = {
+      totalServers,
+      onlineServers,
+      totalCcu,
+      totalCapacity,
+      utilizationPct,
+      avgPingMs,
+      avgTickRateHz,
+    };
+  }
+
   return {
     servers,
     fleetSummary,
     isLoading,
     fetchServers,
+    handleIncomingTelemetryTick,
     createServer,
     updateServer,
     updateServerStatus,

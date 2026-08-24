@@ -7,7 +7,13 @@
           <span class="w-1.5 h-1.5 rounded-full bg-ops-blue-glow" />
           <span>Subsystem 07 / Game Server Fleet Infrastructure</span>
         </div>
-        <h1 class="text-lg font-bold text-ops-text-bright font-sans">Game Servers & Fleet Telemetry</h1>
+        <div class="flex items-center gap-3">
+          <h1 class="text-lg font-bold text-ops-text-bright font-sans">Game Servers & Fleet Telemetry</h1>
+          <span class="text-3xs px-2 py-0.5 rounded font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shadow-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+            LIVE SIMULATION (12s)
+          </span>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -627,11 +633,13 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/auth';
 import { useServersStore } from '~/stores/servers';
+import { useChatStore } from '~/stores/chat';
 import { useToast } from '~/composables/useToast';
 import type { IGameServer, ServerNodeStatus, ServerRegion } from '../../../shared/types';
 
 const authStore = useAuthStore();
 const serversStore = useServersStore();
+const chatStore = useChatStore();
 const toast = useToast();
 
 const showCreateModal = ref(false);
@@ -666,6 +674,7 @@ const editForm = reactive({
 });
 
 onMounted(async () => {
+  chatStore.initSocket();
   await serversStore.fetchServers();
 });
 

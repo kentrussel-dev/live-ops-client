@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import type { IChatChannel, IChatMessage, IUser } from '../../shared/types';
 import { useAuthStore } from './auth';
 import { useNotificationsStore } from './notifications';
+import { useServersStore } from './servers';
 
 export const useChatStore = defineStore('chat', () => {
   const channels = ref<IChatChannel[]>([]);
@@ -133,6 +134,13 @@ export const useChatStore = defineStore('chat', () => {
     socket.on('notification:new', (notif) => {
       const notifStore = useNotificationsStore();
       notifStore.handleIncomingNotification(notif);
+    });
+
+    socket.on('servers:telemetry_tick', (updatedServers) => {
+      try {
+        const serversStore = useServersStore();
+        serversStore.handleIncomingTelemetryTick(updatedServers);
+      } catch (_) {}
     });
 
     socket.on('disconnect', () => {
