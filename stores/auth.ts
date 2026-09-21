@@ -162,6 +162,41 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateProfile(fields: any): Promise<{ ok: boolean; error?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.patch('/auth/profile', fields);
+      if (res.success && res.data?.user) {
+        user.value = res.data.user;
+        userCookie.value = res.data.user;
+        viewedProfile.value = res.data.user;
+        return { ok: true };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to update profile' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Failed to update profile' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function changePassword(payload: any): Promise<{ ok: boolean; error?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.post('/auth/change-password', payload);
+      if (res.success) {
+        return { ok: true };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to change password' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Failed to change password' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   const viewedProfile = ref<any | null>(null);
   const isProfileModalOpen = ref(false);
   const isPhotoZoomOpen = ref(false);
@@ -209,6 +244,53 @@ export const useAuthStore = defineStore('auth', () => {
     userCookie.value = null;
   }
 
+  async function updateProfile(fields: {
+    username?: string;
+    email?: string;
+    department?: string;
+    statusMessage?: string;
+    position?: string;
+  }): Promise<{ ok: boolean; error?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.patch('/auth/profile', fields);
+      if (res.success && res.data?.user) {
+        user.value = res.data.user;
+        userCookie.value = res.data.user;
+        if (viewedProfile.value && viewedProfile.value._id === res.data.user._id) {
+          viewedProfile.value = { ...viewedProfile.value, ...res.data.user };
+        }
+        await fetchOperators();
+        return { ok: true };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to update profile' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Failed to update profile' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function changePassword(payload: {
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<{ ok: boolean; error?: string }> {
+    isLoading.value = true;
+    try {
+      const api = useApi();
+      const res = await api.post('/auth/change-password', payload);
+      if (res.success) {
+        return { ok: true };
+      }
+      return { ok: false, error: res.error?.message || 'Failed to change password' };
+    } catch (err: any) {
+      return { ok: false, error: err?.data?.error?.message || err?.message || 'Failed to change password' };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     token,
     user,
@@ -235,6 +317,8 @@ export const useAuthStore = defineStore('auth', () => {
     closeProfile,
     createOperator,
     deleteOperator,
+    updateProfile,
+    changePassword,
     logout,
   };
 });

@@ -36,7 +36,7 @@
 
               <!-- Zoom Hover Overlay Icon -->
               <div class="absolute inset-0 bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-mono">
-                🔍 Zoom
+                Zoom
               </div>
 
               <!-- Online Presence Dot -->
@@ -69,14 +69,9 @@
                 </span>
               </div>
 
-              <!-- Position / Title -->
-              <div class="text-xs font-semibold text-ops-blue-glow font-mono">
-                {{ authStore.viewedProfile.position || 'Live-Ops Specialist' }}
-              </div>
-
               <!-- Department & Email -->
-              <div class="text-2xs font-mono text-ops-text-dim flex items-center gap-2 flex-wrap">
-                <span>🏢 {{ authStore.viewedProfile.department || 'Operations' }}</span>
+              <div class="text-2xs font-mono text-ops-text-dim flex items-center gap-2 flex-wrap pt-1">
+                <span>{{ authStore.viewedProfile.department || 'Operations' }}</span>
                 <span>•</span>
                 <span class="text-ops-text-dark">{{ authStore.viewedProfile.email }}</span>
               </div>
@@ -84,7 +79,6 @@
               <!-- Live Status Message -->
               <div v-if="authStore.viewedProfile.statusMessage" class="pt-1">
                 <span class="text-3xs px-2 py-0.5 rounded-full bg-ops-obsidian border border-ops-border text-ops-text-dim font-mono italic inline-flex items-center gap-1">
-                  <span>💬</span>
                   <span>{{ authStore.viewedProfile.statusMessage }}</span>
                 </span>
               </div>
@@ -92,77 +86,102 @@
           </div>
         </div>
 
+        <!-- Tab Bar (only if own profile) -->
+        <div v-if="isOwnProfile" class="flex border-b border-ops-border px-4 gap-4 bg-ops-subtle shrink-0">
+          <button
+            @click="setTab('profile')"
+            :class="['py-2 transition', activeTab === 'profile' ? 'text-ops-blue-glow border-b-2 border-ops-blue font-semibold' : 'text-ops-text-dim hover:text-ops-text-bright']"
+          >
+            Profile
+          </button>
+          <button
+            @click="setTab('edit')"
+            :class="['py-2 transition', activeTab === 'edit' ? 'text-ops-blue-glow border-b-2 border-ops-blue font-semibold' : 'text-ops-text-dim hover:text-ops-text-bright']"
+          >
+            Edit
+          </button>
+          <button
+            @click="setTab('password')"
+            :class="['py-2 transition', activeTab === 'password' ? 'text-ops-blue-glow border-b-2 border-ops-blue font-semibold' : 'text-ops-text-dim hover:text-ops-text-bright']"
+          >
+            Password
+          </button>
+        </div>
+
         <!-- Scrollable Profile Content Body -->
         <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-ops-surface">
-          <!-- Department Description / Responsibilities -->
-          <div class="p-3.5 bg-ops-obsidian rounded-lg border border-ops-border space-y-1.5">
-            <div class="text-2xs font-mono uppercase tracking-wider text-ops-text-dim font-bold flex items-center gap-1.5">
-              <span>📋</span>
-              <span>Department Scope & Responsibilities</span>
-            </div>
-            <p class="text-xs text-ops-text-bright leading-relaxed">
-              {{ authStore.viewedProfile.departmentDescription || 'Responsible for live-service operations, server reliability, and deployment pipeline synchronization.' }}
-            </p>
-          </div>
-
-          <!-- Operator Bio -->
-          <div class="space-y-1">
-            <div class="text-2xs font-mono uppercase tracking-wider text-ops-text-dim font-bold">
-              About Operator
-            </div>
-            <p class="text-xs text-ops-text-dim leading-relaxed bg-ops-canvas p-3 rounded-lg border border-ops-border">
-              {{ authStore.viewedProfile.bio || 'Studio live operations engineer coordinating with engineering, design, and QA teams.' }}
-            </p>
-          </div>
-
-          <!-- Operational Activity Metrics Grid -->
-          <div class="space-y-1.5">
-            <div class="text-2xs font-mono uppercase tracking-wider text-ops-text-dim font-bold">
-              Operational Statistics
-            </div>
-            <div class="grid grid-cols-3 gap-2 font-mono text-center">
-              <div class="p-2.5 bg-ops-obsidian rounded border border-ops-border space-y-0.5">
-                <div class="text-base font-bold text-ops-blue-glow">
-                  {{ authStore.viewedProfile.metrics?.totalAssignedTickets ?? (authStore.viewedProfile.assignedTickets?.length || 0) }}
-                </div>
-                <div class="text-3xs text-ops-text-dim uppercase">Assigned Issues</div>
+          <!-- Profile View -->
+          <div v-if="activeTab === 'profile'" class="space-y-3">
+            <div class="p-3 bg-ops-obsidian rounded-lg border border-ops-border space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-ops-text-dim font-mono uppercase text-2xs">Department</span>
+                <span class="text-ops-text-bright font-medium">{{ authStore.viewedProfile.department || 'Operations' }}</span>
               </div>
-              <div class="p-2.5 bg-ops-obsidian rounded border border-ops-border space-y-0.5">
-                <div class="text-base font-bold text-emerald-600 dark:text-emerald-400">
-                  {{ authStore.viewedProfile.metrics?.resolvedTickets ?? 0 }}
-                </div>
-                <div class="text-3xs text-ops-text-dim uppercase">Resolved</div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-ops-text-dim font-mono uppercase text-2xs">Email</span>
+                <span class="text-ops-text-bright font-mono">{{ authStore.viewedProfile.email }}</span>
               </div>
-              <div class="p-2.5 bg-ops-obsidian rounded border border-ops-border space-y-0.5">
-                <div class="text-base font-bold text-amber-600 dark:text-amber-400">
-                  {{ isOnline ? 'Online' : 'Offline' }}
-                </div>
-                <div class="text-3xs text-ops-text-dim uppercase">Presence</div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-ops-text-dim font-mono uppercase text-2xs">Role</span>
+                <span class="text-ops-text-bright font-mono uppercase text-2xs">{{ authStore.viewedProfile.role?.replace('_', ' ') }}</span>
+              </div>
+              <div v-if="authStore.viewedProfile.statusMessage" class="flex justify-between items-center text-xs pt-1 border-t border-ops-border/50">
+                <span class="text-ops-text-dim font-mono uppercase text-2xs">Status</span>
+                <span class="text-ops-text-bright italic">{{ authStore.viewedProfile.statusMessage }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Recent Assigned Tickets Section -->
-          <div v-if="authStore.viewedProfile.assignedTickets && authStore.viewedProfile.assignedTickets.length > 0" class="space-y-2">
-            <div class="text-2xs font-mono uppercase tracking-wider text-ops-text-dim font-bold flex items-center justify-between">
-              <span>Assigned Active Tickets</span>
-              <span class="text-3xs text-ops-text-dark">({{ authStore.viewedProfile.assignedTickets.length }})</span>
+          <!-- Edit Profile Form -->
+          <div v-else-if="activeTab === 'edit'" class="space-y-4">
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Username</label>
+              <input v-model="editForm.username" type="text" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
             </div>
-            <div class="space-y-1.5 max-h-36 overflow-y-auto">
-              <div
-                v-for="ticket in authStore.viewedProfile.assignedTickets"
-                :key="ticket._id"
-                @click="navigateToTicket(ticket._id)"
-                class="p-2 bg-ops-obsidian hover:bg-ops-surface-hover rounded border border-ops-border flex items-center justify-between gap-2 cursor-pointer transition"
-              >
-                <div class="min-w-0 flex items-center gap-2">
-                  <span class="font-mono font-bold text-3xs text-ops-blue-glow">{{ ticket.ticketKey }}</span>
-                  <span class="text-xs text-ops-text-bright truncate">{{ ticket.title }}</span>
-                </div>
-                <span class="text-3xs font-mono px-1.5 py-0.2 bg-ops-surface rounded border border-ops-border text-ops-text-dim uppercase">
-                  {{ ticket.severity }}
-                </span>
-              </div>
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Email</label>
+              <input v-model="editForm.email" type="email" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
+            </div>
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Department</label>
+              <input v-model="editForm.department" type="text" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
+            </div>
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Status Message</label>
+              <input v-model="editForm.statusMessage" type="text" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
+            </div>
+            <div v-if="authStore.user?.role !== 'admin'">
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Position</label>
+              <select v-model="editForm.position" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans">
+                <option value="Developer">Developer</option>
+                <option value="QA">QA</option>
+                <option value="Artist">Artist</option>
+              </select>
+            </div>
+            
+            <div class="flex items-center gap-4 pt-2">
+              <button @click="saveProfile" class="px-4 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition" :disabled="isSavingProfile">
+                Save
+              </button>
+              <span v-if="profileMsg" :class="profileMsgClass">{{ profileMsg }}</span>
+            </div>
+          </div>
+
+          <!-- Password Change Form -->
+          <div v-else-if="activeTab === 'password'" class="space-y-4">
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Old Password</label>
+              <input v-model="pwdForm.oldPassword" type="password" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
+            </div>
+            <div>
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">New Password</label>
+              <input v-model="pwdForm.newPassword" type="password" class="w-full bg-ops-obsidian border border-ops-border rounded px-3 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans" />
+            </div>
+            <div class="flex items-center gap-4 pt-2">
+              <button @click="savePassword" class="px-4 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition" :disabled="isSavingPassword">
+                Save
+              </button>
+              <span v-if="pwdMsg" :class="pwdMsgClass">{{ pwdMsg }}</span>
             </div>
           </div>
         </div>
@@ -183,7 +202,6 @@
               @click="handleStartDM(authStore.viewedProfile._id)"
               class="px-4 py-1.5 bg-ops-blue hover:bg-ops-blue-glow text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
             >
-              <span>💬</span>
               <span>Send Direct Message</span>
             </button>
           </div>
@@ -214,7 +232,7 @@
 
         <div class="mt-3 text-center">
           <div class="text-sm font-bold text-white">{{ authStore.viewedProfile.username }}</div>
-          <div class="text-xs font-mono text-ops-blue-glow">{{ authStore.viewedProfile.position }} • {{ authStore.viewedProfile.department }}</div>
+          <div class="text-xs font-mono text-ops-blue-glow">{{ authStore.viewedProfile.department }}</div>
         </div>
       </div>
     </div>
@@ -222,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
 import { useChatStore } from '~/stores/chat';
@@ -235,6 +253,86 @@ const isOnline = computed(() => {
   if (!authStore.viewedProfile) return false;
   return chatStore.isUserOnline(authStore.viewedProfile._id);
 });
+
+const isOwnProfile = computed(() => {
+  return authStore.viewedProfile && authStore.user && authStore.viewedProfile._id === authStore.user._id;
+});
+
+const activeTab = ref<'profile'|'edit'|'password'>('profile');
+
+const editForm = ref({
+  username: '',
+  email: '',
+  department: '',
+  statusMessage: '',
+  position: 'Developer',
+});
+
+const pwdForm = ref({
+  oldPassword: '',
+  newPassword: '',
+});
+
+const isSavingProfile = ref(false);
+const profileMsg = ref('');
+const profileMsgClass = ref('');
+
+const isSavingPassword = ref(false);
+const pwdMsg = ref('');
+const pwdMsgClass = ref('');
+
+watch(() => authStore.isProfileModalOpen, (isOpen) => {
+  if (isOpen) {
+    activeTab.value = 'profile';
+    profileMsg.value = '';
+    pwdMsg.value = '';
+    if (authStore.viewedProfile) {
+      editForm.value = {
+        username: authStore.viewedProfile.username || '',
+        email: authStore.viewedProfile.email || '',
+        department: authStore.viewedProfile.department || '',
+        statusMessage: authStore.viewedProfile.statusMessage || '',
+        position: authStore.viewedProfile.position || 'Developer',
+      };
+    }
+  }
+});
+
+function setTab(tab: 'profile'|'edit'|'password') {
+  activeTab.value = tab;
+  profileMsg.value = '';
+  pwdMsg.value = '';
+}
+
+async function saveProfile() {
+  isSavingProfile.value = true;
+  profileMsg.value = '';
+  const res = await (authStore as any).updateProfile(editForm.value);
+  isSavingProfile.value = false;
+  if (res.ok) {
+    profileMsg.value = 'Profile updated successfully.';
+    profileMsgClass.value = 'text-emerald-400 text-xs';
+  } else {
+    profileMsg.value = res.error || 'Failed to update profile.';
+    profileMsgClass.value = 'text-rose-400 text-xs';
+  }
+}
+
+async function savePassword() {
+  isSavingPassword.value = true;
+  pwdMsg.value = '';
+  const res = await (authStore as any).changePassword(pwdForm.value);
+  isSavingPassword.value = false;
+  if (res.ok) {
+    pwdMsg.value = 'Password changed successfully.';
+    pwdMsgClass.value = 'text-emerald-400 text-xs';
+    pwdForm.value.oldPassword = '';
+    pwdForm.value.newPassword = '';
+  } else {
+    pwdMsg.value = res.error || 'Failed to change password.';
+    pwdMsgClass.value = 'text-rose-400 text-xs';
+  }
+}
 
 function handleStartDM(userId: string) {
   authStore.closeProfile();
