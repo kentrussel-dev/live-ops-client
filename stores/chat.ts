@@ -95,6 +95,9 @@ export const useChatStore = defineStore('chat', () => {
           createdAt: message.createdAt,
         };
         ch.updatedAt = message.createdAt;
+      } else {
+        // If message is for a channel or DM not yet in the list, refresh channels immediately
+        fetchChannels();
       }
     });
 
@@ -259,6 +262,19 @@ export const useChatStore = defineStore('chat', () => {
     try {
       if (activeChannel.value.isDirectMessage) {
         activeChannel.value.updatedAt = new Date().toISOString();
+        if (!recipientId && activeChannel.value.dmTargetUser?._id) {
+          recipientId = activeChannel.value.dmTargetUser._id;
+        } else if (!recipientId && activeChannel.value.members && activeChannel.value.members.length > 0) {
+          const authStore = useAuthStore();
+          const currentUserId = authStore.user?._id?.toString();
+          const other = activeChannel.value.members.find((m: any) => {
+            const id = (typeof m === 'object' ? (m._id || m) : m)?.toString();
+            return id && id !== currentUserId;
+          });
+          if (other) {
+            recipientId = (typeof other === 'object' ? (other._id || other) : other)?.toString();
+          }
+        }
       }
 
       if (socket && socket.connected) {

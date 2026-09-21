@@ -606,8 +606,8 @@
         </button>
       </div>
 
-      <!-- Bottom Message Composer -->
-      <div class="p-3 border-t border-ops-border bg-ops-surface">
+      <!-- Bottom Message Composer (Only visible if operator is a member or admin) -->
+      <div v-if="isMemberOfActiveChannel" class="p-3 border-t border-ops-border bg-ops-surface">
         <form @submit.prevent="handleSendMessage" class="flex items-center gap-2">
           <div class="flex-1 relative flex items-center">
             <textarea
@@ -650,6 +650,16 @@
             <span>{{ activeReplyTarget ? 'REPLY' : 'SEND' }}</span>
           </button>
         </form>
+      </div>
+
+      <!-- Locked Non-Member Notice -->
+      <div v-else class="p-4 border-t border-ops-border bg-ops-subtle/80 flex items-center justify-between gap-4 font-mono text-xs">
+        <div class="flex items-center gap-2 text-ops-text-dim">
+          <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <span class="text-xs">You are viewing this channel in read-only mode because you are not a member.</span>
+        </div>
       </div>
     </div>
 
@@ -1039,6 +1049,33 @@ const canEditActiveChannel = computed(() => {
     ch.createdBy === currentUserId ||
     (ch.members && ch.members.some((m) => m?.toString() === currentUserId))
   );
+});
+
+const isMemberOfActiveChannel = computed(() => {
+  const ch = chatStore.activeChannel;
+  if (!ch) return false;
+  if (authStore.user?.role === 'admin') return true;
+  const currentUserId = authStore.user?._id?.toString();
+  const currentUsername = authStore.user?.username;
+
+  if (ch.isDirectMessage) {
+    if (!ch.members || ch.members.length === 0) return true;
+    return ch.members.some((m: any) => {
+      const id = (typeof m === 'object' ? (m._id || m) : m)?.toString();
+      return id === currentUserId;
+    });
+  }
+
+  // Standard channel: if members list is empty, open to all operators
+  if (!ch.members || ch.members.length === 0) return true;
+
+  // Otherwise check if current user is in members list or is creator
+  const isMember = ch.members.some((m: any) => {
+    const id = (typeof m === 'object' ? (m._id || m) : m)?.toString();
+    return id === currentUserId;
+  });
+  const isCreator = ch.createdBy === currentUsername || ch.createdBy === currentUserId;
+  return isMember || isCreator;
 });
 
 const activeChannelMembersCount = computed(() => {
