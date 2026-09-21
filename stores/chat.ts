@@ -332,10 +332,10 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  async function createChannel(name: string, description: string): Promise<boolean> {
+  async function createChannel(name: string, description: string, members?: string[]): Promise<boolean> {
     try {
       const api = useApi();
-      const res = await api.post('/chat/channels', { name, description });
+      const res = await api.post('/chat/channels', { name, description, members });
       if (res.success && res.data?.channel) {
         channels.value.push(res.data.channel);
         await selectChannel(res.data.channel);

@@ -634,7 +634,7 @@
       v-if="showCreateChannelModal"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
     >
-      <div class="w-full max-w-sm bg-ops-surface border border-ops-border rounded-lg shadow-2xl overflow-hidden font-sans text-xs">
+      <div class="w-full max-w-md bg-ops-surface border border-ops-border rounded-lg shadow-2xl overflow-hidden font-sans text-xs">
         <div class="p-4 border-b border-ops-border bg-ops-subtle flex items-center justify-between">
           <h3 class="font-mono font-bold text-sm text-ops-text-bright">Create Communication Channel</h3>
           <button @click="showCreateChannelModal = false" class="text-ops-text-dim hover:text-ops-text-bright font-mono">✕</button>
@@ -662,6 +662,83 @@
             />
           </div>
 
+          <!-- Member Picker -->
+          <div>
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Add Members</label>
+
+            <!-- Selected members chips -->
+            <div v-if="selectedChannelMembers.length > 0" class="flex flex-wrap gap-1.5 mb-2">
+              <span
+                v-for="memberId in selectedChannelMembers"
+                :key="memberId"
+                class="flex items-center gap-1 px-2 py-0.5 bg-ops-blue/20 border border-ops-blue/40 rounded-full text-2xs font-mono text-ops-blue-glow"
+              >
+                {{ channelMemberPickerList.find(op => op._id === memberId)?.username || memberId }}
+                <button
+                  type="button"
+                  @click="selectedChannelMembers = selectedChannelMembers.filter(id => id !== memberId)"
+                  class="hover:text-rose-400 font-bold leading-none"
+                >✕</button>
+              </span>
+            </div>
+
+            <!-- Search -->
+            <input
+              v-model="newChannelMemberSearch"
+              type="text"
+              placeholder="Search operators..."
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans mb-2"
+            />
+
+            <!-- Operator list -->
+            <div class="max-h-44 overflow-y-auto space-y-1 border border-ops-border rounded bg-ops-obsidian p-1.5">
+              <div
+                v-for="op in channelMemberPickerList"
+                :key="op._id"
+                @click="toggleChannelMember(op._id)"
+                :class="[
+                  'flex items-center gap-2.5 px-2 py-1.5 rounded cursor-pointer transition',
+                  selectedChannelMembers.includes(op._id)
+                    ? 'bg-ops-blue/20 border border-ops-blue/30'
+                    : 'hover:bg-ops-surface-hover border border-transparent'
+                ]"
+              >
+                <!-- Checkbox indicator -->
+                <div :class="[
+                  'w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition',
+                  selectedChannelMembers.includes(op._id)
+                    ? 'bg-ops-blue border-ops-blue text-white'
+                    : 'border-ops-border'
+                ]">
+                  <svg v-if="selectedChannelMembers.includes(op._id)" class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M2 6l3 3 5-5"/>
+                  </svg>
+                </div>
+
+                <!-- Avatar -->
+                <div class="w-5 h-5 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-text-bright shrink-0 overflow-hidden">
+                  <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
+                  <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="font-semibold text-ops-text-bright truncate">{{ op.username }}</div>
+                  <div class="text-2xs text-ops-text-dim truncate">{{ op.position || op.department || op.role }}</div>
+                </div>
+
+                <span :class="[
+                  'w-1.5 h-1.5 rounded-full shrink-0',
+                  chatStore.isUserOnline(op._id) ? 'bg-emerald-500' : 'bg-slate-500'
+                ]" />
+              </div>
+
+              <div v-if="channelMemberPickerList.length === 0" class="text-center py-4 text-ops-text-dim font-mono text-2xs">
+                No operators found
+              </div>
+            </div>
+            <p class="text-2xs text-ops-text-dim mt-1">{{ selectedChannelMembers.length }} member(s) selected. You will be added automatically.</p>
+          </div>
+
           <div class="flex items-center justify-end gap-2 pt-4 border-t border-ops-border">
             <button
               type="button"
@@ -680,6 +757,7 @@
         </form>
       </div>
     </div>
+
 
     <!-- Modal 2: Start Direct Message Modal -->
     <div
@@ -768,6 +846,8 @@ const showStartDmModal = ref(false);
 const operatorSearchQuery = ref('');
 const newChannelName = ref('');
 const newChannelDescription = ref('');
+const newChannelMemberSearch = ref('');
+const selectedChannelMembers = ref<string[]>([]);
 const activeEmojiPickerKey = ref<string | null>(null);
 const showComposerEmojiPicker = ref(false);
 const activeReplyTarget = ref<{
@@ -1115,13 +1195,57 @@ function handleComposerEmojiSelect(emoji: string) {
   showComposerEmojiPicker.value = false;
 }
 
+const channelMemberPickerList = computed(() => {
+  const list = (chatStore.operators.length > 0 ? chatStore.operators : authStore.operators) || [];
+  const currentId = authStore.user?._id?.toString();
+  return list.filter((u) => {
+    if (!u) return false;
+    const uId = (u._id || '').toString();
+    if (uId && currentId && uId === currentId) return false; // current user is automatically added
+    if (newChannelMemberSearch.value.trim()) {
+      const q = newChannelMemberSearch.value.toLowerCase();
+      const uName = (u.username || '').toLowerCase();
+      return (
+        uName.includes(q) ||
+        (u.department && u.department.toLowerCase().includes(q)) ||
+        (u.position && u.position.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+});
+
+function toggleChannelMember(opId: string) {
+  if (selectedChannelMembers.value.includes(opId)) {
+    selectedChannelMembers.value = selectedChannelMembers.value.filter((id) => id !== opId);
+  } else {
+    selectedChannelMembers.value.push(opId);
+  }
+}
+
+watch(showCreateChannelModal, (open) => {
+  if (open) {
+    newChannelName.value = '';
+    newChannelDescription.value = '';
+    newChannelMemberSearch.value = '';
+    selectedChannelMembers.value = [];
+    chatStore.fetchOperators();
+  }
+});
+
 async function handleCreateChannelSubmit() {
   if (!newChannelName.value.trim()) return;
-  const ok = await chatStore.createChannel(newChannelName.value, newChannelDescription.value);
+  const membersToAdd = [...selectedChannelMembers.value];
+  if (authStore.user?._id && !membersToAdd.includes(authStore.user._id)) {
+    membersToAdd.push(authStore.user._id);
+  }
+  const ok = await chatStore.createChannel(newChannelName.value, newChannelDescription.value, membersToAdd);
   if (ok) {
     showCreateChannelModal.value = false;
     newChannelName.value = '';
     newChannelDescription.value = '';
+    selectedChannelMembers.value = [];
+    newChannelMemberSearch.value = '';
     scrollToBottom();
   }
 }
