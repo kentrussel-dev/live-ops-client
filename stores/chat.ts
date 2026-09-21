@@ -59,7 +59,8 @@ export const useChatStore = defineStore('chat', () => {
 
     socket = io(serverUrl, {
       auth: { token: authStore.token },
-      transports: ['websocket', 'polling'],
+      transports: ['polling'],
+      upgrade: false,
     });
 
     socket.on('connect', () => {
