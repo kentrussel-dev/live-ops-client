@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="p-6 border-b border-ops-border bg-ops-subtle text-center space-y-1">
         <div class="flex items-center justify-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
+          <img src="/logo.png" alt="Aetheria Logo" class="w-6 h-6 object-contain" />
           <span class="font-mono font-bold text-sm text-ops-text-bright tracking-wider uppercase">Aetheria</span>
         </div>
         <p class="text-xs text-ops-text-dim">

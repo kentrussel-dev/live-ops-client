@@ -7,14 +7,14 @@
           <div class="text-2xs font-mono uppercase text-ops-text-dim">Subsystem 05 / Engineering & QA</div>
           <h1 class="text-lg font-bold text-ops-text-bright font-sans flex items-center gap-2">
             <span>Projects & Kanban</span>
-            <span v-if="projectsStore.activeProject" class="text-xs px-2 py-0.5 rounded bg-ops-subtle border border-ops-border text-ops-blue-glow font-mono font-normal">
+            <span v-if="!showProjectsGrid && projectsStore.activeProject" class="text-xs px-2 py-0.5 rounded bg-ops-subtle border border-ops-border text-ops-blue-glow font-mono font-normal">
               [{{ projectsStore.activeProject.key }}]
             </span>
           </h1>
         </div>
 
-        <!-- Project Selector Dropdown -->
-        <div v-if="projectsStore.projects.length > 0" class="flex items-center gap-2 pl-4 border-l border-ops-border">
+        <!-- Project Selector Dropdown (only on Kanban board) -->
+        <div v-if="!showProjectsGrid && projectsStore.projects.length > 0" class="flex items-center gap-2 pl-4 border-l border-ops-border">
           <label class="text-2xs font-mono text-ops-text-dim uppercase">Active Project:</label>
           <select
             :value="projectsStore.activeProject?._id"
@@ -30,9 +30,19 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-2">
-        <!-- Add Column Button (Dev, QA, Admin only) -->
+        <!-- Back to Projects Grid (only in kanban view) -->
         <button
-          v-if="projectsStore.activeProject && authStore.canManageKanban"
+          v-if="!showProjectsGrid && projectsStore.projects.length > 0"
+          @click="showProjectsGrid = true"
+          class="px-2.5 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-dim hover:text-ops-text-bright font-mono text-xs rounded transition flex items-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>All Projects</span>
+        </button>
+
+        <!-- Add Column Button (Dev, QA, Admin only, only in kanban view) -->
+        <button
+          v-if="!showProjectsGrid && projectsStore.activeProject && authStore.canManageKanban"
           @click="showAddColumnModal = true"
           class="px-2.5 py-1.5 bg-ops-surface hover:bg-ops-surface-hover border border-ops-border text-ops-text-bright font-mono text-xs rounded transition flex items-center gap-1 shadow-xs"
           title="Add a custom column to this Kanban board"
@@ -41,9 +51,9 @@
           <span>Add Column</span>
         </button>
 
-        <!-- New Ticket Button -->
+        <!-- New Ticket Button (only in kanban view) -->
         <button
-          v-if="projectsStore.activeProject"
+          v-if="!showProjectsGrid && projectsStore.activeProject"
           @click="openNewTicketModal"
           class="px-3 py-1.5 bg-ops-blue hover:bg-ops-blue-dark text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5 shadow"
         >
@@ -84,8 +94,127 @@
       </button>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- PROJECTS GRID VIEW: Card List Before Entering Kanban     -->
+    <!-- ======================================================== -->
+    <div v-else-if="showProjectsGrid && projectsStore.projects.length > 0" class="space-y-4">
+      <!-- Search & Filter Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <!-- Search Input -->
+          <div class="relative flex-1 max-w-xs">
+            <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ops-text-dim pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              v-model="projectSearch"
+              type="text"
+              placeholder="Search..."
+              class="w-full pl-8 pr-3 py-1.5 bg-ops-surface border border-ops-border rounded text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans placeholder:text-ops-text-dim/60"
+            />
+          </div>
+
+          <!-- Favorites filter toggle -->
+          <button
+            @click="showFavoritesOnly = !showFavoritesOnly"
+            :class="['px-2.5 py-1.5 border rounded text-xs font-mono transition flex items-center gap-1.5', showFavoritesOnly ? 'bg-amber-900/40 border-amber-700 text-amber-400' : 'bg-ops-surface border-ops-border text-ops-text-dim hover:text-ops-text-bright']"
+          >
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <span>Favorites</span>
+          </button>
+        </div>
+
+        <!-- Project count -->
+        <div class="text-2xs font-mono text-ops-text-dim shrink-0">
+          {{ filteredProjects.length }} / {{ projectsStore.projects.length }} projects
+        </div>
+      </div>
+
+      <!-- Project Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div
+          v-for="proj in filteredProjects"
+          :key="proj._id"
+          @click="handleOpenKanban(proj._id)"
+          class="group relative bg-ops-surface border border-ops-border rounded-lg p-4 cursor-pointer hover:border-ops-blue hover:shadow-md transition-all duration-150 flex flex-col gap-3 min-h-[110px]"
+        >
+          <!-- Card Top Row: Name + Favorite + 3-dot menu -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <!-- Star/Favorite button -->
+                <button
+                  @click.stop="toggleFavorite(proj._id)"
+                  :class="['shrink-0 transition', favoriteIds.has(proj._id) ? 'text-amber-400' : 'text-ops-text-dim/30 hover:text-amber-400']"
+                  title="Toggle favorite"
+                >
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                </button>
+                <span class="text-xs font-bold text-ops-text-bright truncate font-sans group-hover:text-white transition">{{ proj.name }}</span>
+              </div>
+              <span class="text-3xs font-mono text-ops-blue-glow uppercase tracking-wider">[{{ proj.key }}]</span>
+            </div>
+
+            <!-- 3-dot menu -->
+            <div class="relative">
+              <button
+                @click.stop="toggleProjectMenu(proj._id)"
+                class="p-1 rounded hover:bg-ops-obsidian text-ops-text-dim hover:text-ops-text-bright transition opacity-0 group-hover:opacity-100"
+              >
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+              </button>
+              <div
+                v-if="openProjectMenuId === proj._id"
+                @click.stop
+                class="absolute right-0 top-6 z-20 bg-ops-obsidian border border-ops-border rounded shadow-xl text-xs font-mono w-36 overflow-hidden"
+              >
+                <button
+                  @click="handleOpenKanban(proj._id)"
+                  class="w-full text-left px-3 py-2 text-ops-text-bright hover:bg-ops-surface transition"
+                >
+                  Open Board
+                </button>
+                <button
+                  @click="openProjectMenuId = null"
+                  class="w-full text-left px-3 py-2 text-ops-text-dim hover:bg-ops-surface transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Bottom: Task count + creator avatar -->
+          <div class="flex items-center justify-between mt-auto">
+            <div class="flex items-center gap-1.5 text-2xs font-mono text-ops-text-dim">
+              <svg class="w-3 h-3 text-ops-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              <span><strong class="text-ops-text-bright">{{ proj.ticketCount ?? 0 }}</strong> Tasks</span>
+              <svg class="w-3 h-3 ml-0.5 text-ops-text-dim/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+
+            <!-- Created by avatar -->
+            <div
+              class="w-5 h-5 rounded-full flex items-center justify-center text-3xs font-bold text-white font-mono shrink-0 border border-white/20"
+              :style="{ backgroundColor: getCreatorColor(proj.createdBy) }"
+              :title="`Created by ${proj.createdBy}`"
+            >
+              {{ (proj.createdBy || '?').slice(0, 2).toUpperCase() }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty filtered result -->
+        <div
+          v-if="filteredProjects.length === 0"
+          class="col-span-full py-12 text-center text-xs font-mono text-ops-text-dim"
+        >
+          No projects match your search.
+        </div>
+      </div>
+    </div>
+
     <!-- Active Kanban Board -->
-    <div v-else-if="projectsStore.activeProject" class="space-y-4">
+    <div v-else-if="!showProjectsGrid && projectsStore.activeProject" class="space-y-4">
       <!-- Project Summary Banner -->
       <div class="flex items-center justify-between p-3 bg-ops-surface rounded border border-ops-border font-mono text-2xs">
         <div class="flex items-center gap-3">
@@ -744,6 +873,30 @@ const isSavingTask = ref(false);
 const isLoggingNote = ref(false);
 const isSubmittingNote = ref(false);
 
+// Projects Grid View state
+const showProjectsGrid = ref(true);
+const projectSearch = ref('');
+const showFavoritesOnly = ref(false);
+const favoriteIds = ref<Set<string>>(new Set());
+const openProjectMenuId = ref<string | null>(null);
+
+const filteredProjects = computed(() => {
+  let list = projectsStore.projects;
+  if (showFavoritesOnly.value) {
+    list = list.filter((p) => favoriteIds.value.has(p._id));
+  }
+  if (projectSearch.value.trim()) {
+    const q = projectSearch.value.toLowerCase().trim();
+    list = list.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.key.toLowerCase().includes(q) ||
+        (p.description && p.description.toLowerCase().includes(q))
+    );
+  }
+  return list;
+});
+
 // Category creation state
 const isAddingCategoryInModal = ref(false);
 const isAddingCategoryInCreate = ref(false);
@@ -826,6 +979,38 @@ function initDefaultTicketKey() {
 
 function handleSelectProject(projectId: string) {
   projectsStore.selectProject(projectId);
+}
+
+function handleOpenKanban(projectId: string) {
+  projectsStore.selectProject(projectId);
+  showProjectsGrid.value = false;
+}
+
+function toggleFavorite(projectId: string) {
+  if (favoriteIds.value.has(projectId)) {
+    favoriteIds.value.delete(projectId);
+  } else {
+    favoriteIds.value.add(projectId);
+  }
+}
+
+function toggleProjectMenu(projectId: string) {
+  openProjectMenuId.value = openProjectMenuId.value === projectId ? null : projectId;
+}
+
+const CREATOR_COLORS = [
+  '#4F46E5', '#7C3AED', '#DB2777', '#EA580C',
+  '#16A34A', '#0891B2', '#DC2626', '#9333EA',
+  '#B45309', '#0D9488', '#2563EB', '#059669'
+];
+
+function getCreatorColor(name?: string): string {
+  if (!name) return '#4F46E5';
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
+  }
+  return CREATOR_COLORS[Math.abs(hash) % CREATOR_COLORS.length];
 }
 
 function getTicketsForColumn(columnId: string) {
@@ -1073,3 +1258,5 @@ async function handleDrop(event: DragEvent, targetColumnId: string) {
   await projectsStore.transitionTicketStatus(ticketId, targetColumnId);
 }
 </script>
+
+

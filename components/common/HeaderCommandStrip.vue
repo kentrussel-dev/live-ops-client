@@ -8,7 +8,7 @@
         class="flex items-center gap-2 cursor-pointer hover:opacity-90 transition group focus:outline-none"
         :title="authStore.isAdmin ? 'Return to Ops Matrix Dashboard' : 'Return to Discuss Hub'"
       >
-        <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_8px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform" />
+        <img src="/logo.png" alt="Aetheria Logo" class="w-4 h-4 object-contain group-hover:scale-110 transition-transform" />
         <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase group-hover:text-ops-blue-glow transition-colors">Aetheria</span>
       </NuxtLink>
 

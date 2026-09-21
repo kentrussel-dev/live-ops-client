@@ -14,6 +14,7 @@ export interface IProject {
   description?: string;
   columns: IKanbanColumn[];
   categories?: string[];
+  ticketCount?: number;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

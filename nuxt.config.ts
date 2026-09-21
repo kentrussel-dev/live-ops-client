@@ -24,6 +24,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Internal Mission Control and Incident Management Console for Aetheria MMORPG' },
       ],
       link: [
+        { rel: 'icon', type: 'image/png', href: '/logo.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap' },
