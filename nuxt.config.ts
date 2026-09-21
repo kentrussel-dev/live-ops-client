@@ -17,6 +17,10 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      htmlAttrs: {
+        class: 'theme-tech-slate-light',
+        style: 'color-scheme: light;',
+      },
       title: 'Aetheria | Mission Control',
       meta: [
         { charset: 'utf-8' },

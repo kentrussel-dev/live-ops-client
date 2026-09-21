@@ -38,7 +38,7 @@ export const THEME_FAMILIES: IThemeOption[] = [
 ];
 
 const currentTheme = ref<ThemeFamily>('tech-slate');
-const currentMode = ref<ColorMode>('dark');
+const currentMode = ref<ColorMode>('light');
 const isThemeInitialized = ref(false);
 
 export function useTheme() {

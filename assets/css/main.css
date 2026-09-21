@@ -11,24 +11,6 @@
    ======================================================== */
 
 :root,
-.theme-tech-slate-dark {
-  --ops-obsidian: #090d16;
-  --ops-canvas: #0d121d;
-  --ops-surface: #121826;
-  --ops-surface-hover: #1a2234;
-  --ops-subtle: #151d2c;
-  --ops-border: #1e293b;
-  --ops-border-subtle: #141d2b;
-  --ops-border-light: #2c3b52;
-  --ops-text-bright: #f8fafc;
-  --ops-text-base: #cbd5e1;
-  --ops-text-dim: #94a3b8;
-  --ops-text-dark: #64748b;
-  --ops-blue: #2563eb;
-  --ops-blue-glow: #38bdf8;
-  color-scheme: dark;
-}
-
 .theme-tech-slate-light {
   --ops-obsidian: #f1f5f9;
   --ops-canvas: #f8fafc;
@@ -45,6 +27,24 @@
   --ops-blue: #2563eb;
   --ops-blue-glow: #1d4ed8;
   color-scheme: light;
+}
+
+.theme-tech-slate-dark {
+  --ops-obsidian: #090d16;
+  --ops-canvas: #0d121d;
+  --ops-surface: #121826;
+  --ops-surface-hover: #1a2234;
+  --ops-subtle: #151d2c;
+  --ops-border: #1e293b;
+  --ops-border-subtle: #141d2b;
+  --ops-border-light: #2c3b52;
+  --ops-text-bright: #f8fafc;
+  --ops-text-base: #cbd5e1;
+  --ops-text-dim: #94a3b8;
+  --ops-text-dark: #64748b;
+  --ops-blue: #2563eb;
+  --ops-blue-glow: #38bdf8;
+  color-scheme: dark;
 }
 
 .theme-emerald-dark {
