@@ -29,12 +29,14 @@ import { useIssuesStore } from '~/stores/issues';
 import { useEventsStore } from '~/stores/events';
 import { useShopStore } from '~/stores/shop';
 import { useServersStore } from '~/stores/servers';
+import { useChatStore } from '~/stores/chat';
 
 const authStore = useAuthStore();
 const issuesStore = useIssuesStore();
 const eventsStore = useEventsStore();
 const shopStore = useShopStore();
 const serversStore = useServersStore();
+const chatStore = useChatStore();
 
 onMounted(async () => {
   authStore.init();
@@ -43,12 +45,16 @@ onMounted(async () => {
     // Validate session in background
     authStore.fetchCurrentUser();
 
-    // Preload operational data across Domain 1 & Domain 2
+    // Initialize real-time chat socket connection
+    chatStore.initSocket();
+
+    // Preload operational data across Domain 1, 2, and 3
     await Promise.all([
       issuesStore.fetchIssues(),
       eventsStore.fetchEvents(),
       shopStore.fetchShopItems(),
       serversStore.fetchServers(),
+      chatStore.fetchChannels(),
     ]);
   }
 });

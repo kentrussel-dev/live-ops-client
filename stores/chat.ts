@@ -19,6 +19,10 @@ export const useChatStore = defineStore('chat', () => {
   const isConnected = ref(false);
   let socket: Socket | null = null;
 
+  const totalUnreadCount = computed(() => {
+    return channels.value.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  });
+
   const standardChannels = computed(() =>
     channels.value.filter((c) => !c.isDirectMessage)
   );
@@ -49,6 +53,15 @@ export const useChatStore = defineStore('chat', () => {
         c.dmTargetUser?.username.toLowerCase().includes(q)
     );
   });
+
+  function playNotificationSound(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const audio = new Audio('/notification.mp3');
+      audio.volume = 0.7;
+      audio.play().catch(() => {});
+    } catch (_) {}
+  }
 
   function initSocket(): void {
     const authStore = useAuthStore();
@@ -102,6 +115,18 @@ export const useChatStore = defineStore('chat', () => {
       } else {
         // If message is for a channel or DM not yet in the list, refresh channels immediately
         fetchChannels();
+      }
+
+      // Play sound notification if not from me, and either user is not on /discuss route or tab is not active/focused
+      if (!isFromMe) {
+        if (typeof window !== 'undefined') {
+          const currentPath = window.location.pathname;
+          const isNotOnDiscuss = !currentPath.startsWith('/discuss');
+          const isTabUnfocused = typeof document !== 'undefined' && !document.hasFocus();
+          if (isNotOnDiscuss || isTabUnfocused) {
+            playNotificationSound();
+          }
+        }
       }
     });
 
@@ -470,5 +495,6 @@ export const useChatStore = defineStore('chat', () => {
     updateChannel,
     toggleReaction,
     isUserOnline,
+    totalUnreadCount,
   };
 });

@@ -374,6 +374,7 @@ const commsNavItems = computed(() => {
       code: '08',
       label: 'Discuss Hub',
       path: '/discuss',
+      badge: chatStore.totalUnreadCount || undefined,
     },
     {
       code: '09',
