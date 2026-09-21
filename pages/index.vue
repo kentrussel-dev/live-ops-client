@@ -10,7 +10,7 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </div>
         <h1 class="text-xl font-bold tracking-tight text-ops-text-bright font-sans">
-          Aetheria Live-Ops Command Center
+          Aetheria Command Center
         </h1>
         <p class="text-xs text-ops-text-dim mt-0.5 font-sans">
           Real-time operations schedule, server fleet telemetry, emergency event toggles, and incident triage.

@@ -41,8 +41,8 @@
 
     <!-- Navigation Links -->
     <div class="p-1.5 space-y-3 overflow-y-auto flex-1 overflow-x-hidden">
-      <!-- Section 1: Content Operations -->
-      <div class="space-y-1">
+      <!-- Section 1: Content Operations (Root Admin only for now) -->
+      <div v-if="authStore.isAdmin" class="space-y-1">
         <div
           v-if="!isCollapsed"
           class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim truncate"
@@ -101,8 +101,8 @@
         </NuxtLink>
       </div>
 
-      <!-- Section 2: Technical Server Infrastructure & SRE -->
-      <div class="space-y-1 pt-2 border-t border-ops-border">
+      <!-- Section 2: Technical Server Infrastructure & SRE (Root Admin only for now) -->
+      <div v-if="authStore.isAdmin" class="space-y-1 pt-2 border-t border-ops-border">
         <div
           v-if="!isCollapsed"
           class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim flex items-center gap-1 truncate"
@@ -158,7 +158,7 @@
       </div>
 
       <!-- Section 3: Communications & Operator Workspace -->
-      <div class="space-y-1 pt-2 border-t border-ops-border">
+      <div :class="['space-y-1', authStore.isAdmin ? 'pt-2 border-t border-ops-border' : '']">
         <div
           v-if="!isCollapsed"
           class="px-2 py-1 text-2xs font-mono font-semibold uppercase tracking-wider text-ops-text-dim flex items-center gap-1 truncate"
@@ -217,64 +217,6 @@
           />
         </NuxtLink>
       </div>
-    </div>
-
-    <!-- Bottom System Health Block (Expanded only) -->
-    <div
-      v-if="!isCollapsed"
-      class="p-3 border-t border-ops-border bg-ops-canvas text-2xs font-mono space-y-1.5 shrink-0"
-    >
-      <div class="flex items-center justify-between text-ops-text-dim">
-        <span>GATEWAY:</span>
-        <span
-          :class="[
-            'font-semibold flex items-center gap-1',
-            gatewayStatus === 'ONLINE'
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : gatewayStatus === 'CONNECTING'
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-rose-600 dark:text-rose-400'
-          ]"
-        >
-          <span
-            :class="[
-              'w-1.5 h-1.5 rounded-full',
-              gatewayStatus === 'ONLINE'
-                ? 'bg-emerald-500 animate-pulse'
-                : gatewayStatus === 'CONNECTING'
-                ? 'bg-amber-500 animate-ping'
-                : 'bg-rose-500'
-            ]"
-          />
-          {{ gatewayStatus }}
-        </span>
-      </div>
-      <div class="flex items-center justify-between text-ops-text-dim">
-        <span>CLIENT BUILD:</span>
-        <span class="text-ops-text-bright">{{ latestBuildVersion }}</span>
-      </div>
-      <div class="flex items-center justify-between text-ops-text-dim">
-        <span>ENVIRONMENT:</span>
-        <span class="text-amber-600 dark:text-amber-400 font-medium uppercase">{{ runtimeEnvironment }}</span>
-      </div>
-    </div>
-
-    <!-- Collapsed Bottom Indicator -->
-    <div
-      v-else
-      class="p-2 border-t border-ops-border bg-ops-canvas flex justify-center items-center text-2xs font-mono"
-      :title="`Gateway: ${gatewayStatus}`"
-    >
-      <span
-        :class="[
-          'w-2 h-2 rounded-full',
-          gatewayStatus === 'ONLINE'
-            ? 'bg-emerald-500 animate-pulse'
-            : gatewayStatus === 'CONNECTING'
-            ? 'bg-amber-500 animate-ping'
-            : 'bg-rose-500'
-        ]"
-      />
     </div>
 
     <!-- Draggable Resize Handle on Right Border -->
@@ -409,7 +351,6 @@ const contentNavItems = computed(() => [
   { code: '02', label: 'Game Events', path: '/events', badge: eventsStore.events.filter((e) => e.status === 'active').length || undefined },
   { code: '03', label: 'Patch Notes', path: '/patches' },
   { code: '04', label: 'Shop Rotation', path: '/shop', badge: shopStore.items.filter((i) => i.rotationStatus === 'flash_sale').length || undefined },
-  { code: '05', label: 'Known Issues', path: '/issues', badge: issuesStore.stats.criticalBlockers || undefined, badgeAlert: (issuesStore.stats.criticalBlockers || 0) > 0 },
   { code: '06', label: 'Audit Trail', path: '/audit' },
 ]);
 
@@ -424,6 +365,11 @@ const infraNavItems = computed(() => [
 
 const commsNavItems = computed(() => {
   const items = [
+    {
+      code: '05',
+      label: 'Projects',
+      path: '/projects',
+    },
     {
       code: '08',
       label: 'Discuss Hub',

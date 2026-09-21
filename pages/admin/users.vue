@@ -138,6 +138,7 @@
               >
                 <option value="Live Operations">Live Operations</option>
                 <option value="Quality Assurance">Quality Assurance</option>
+                <option value="Game Engineering">Game Engineering</option>
                 <option value="Game Economy">Game Economy</option>
                 <option value="Studio Leadership">Studio Leadership</option>
               </select>
@@ -149,8 +150,9 @@
                 v-model="formRole"
                 class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright font-mono focus:border-purple-500 outline-none"
               >
+                <option value="developer">Developer</option>
                 <option value="liveops_editor">Editor (Write & Toggle)</option>
-                <option value="readonly_viewer">QA Auditor (Read-Only)</option>
+                <option value="readonly_viewer">QA (Quality Assurance)</option>
                 <option value="admin">Administrator</option>
               </select>
             </div>

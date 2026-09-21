@@ -18,9 +18,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value && !!user.value);
   const role = computed<UserRole>(() => user.value?.role || 'readonly_viewer');
-  const canEdit = computed(() => role.value === 'liveops_editor' || role.value === 'admin');
+  const canEdit = computed(() => role.value === 'liveops_editor' || role.value === 'developer' || role.value === 'admin');
   const isAdmin = computed(() => role.value === 'admin');
+  const isDeveloper = computed(() => role.value === 'developer');
   const isViewerOnly = computed(() => role.value === 'readonly_viewer');
+  const canManageKanban = computed(() => role.value === 'developer' || role.value === 'readonly_viewer' || role.value === 'admin');
 
   function init() {
     if (tokenCookie.value && userCookie.value) {
@@ -219,7 +221,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     canEdit,
     isAdmin,
+    isDeveloper,
     isViewerOnly,
+    canManageKanban,
     init,
     setAuth,
     login,

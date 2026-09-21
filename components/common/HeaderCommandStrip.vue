@@ -2,15 +2,14 @@
   <header class="h-11 bg-ops-surface border-b border-ops-border px-3.5 flex items-center justify-between select-none z-30 sticky top-0">
     <!-- Left: Brand / System Status & Live UTC Clock -->
     <div class="flex items-center gap-4 min-w-0">
-      <!-- Clickable Brand / System Logo -> Navigates to Ops Matrix (/) -->
+      <!-- Clickable Brand / System Logo -> Navigates to Ops Matrix (/) for Admin, Discuss for other operators -->
       <NuxtLink
-        to="/"
+        :to="authStore.isAdmin ? '/' : '/discuss'"
         class="flex items-center gap-2 cursor-pointer hover:opacity-90 transition group focus:outline-none"
-        title="Return to Ops Matrix Dashboard"
+        :title="authStore.isAdmin ? 'Return to Ops Matrix Dashboard' : 'Return to Discuss Hub'"
       >
         <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_8px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform" />
-        <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase group-hover:text-ops-blue-glow transition-colors">Aetheria Ops</span>
-        <span class="text-xs px-1.5 py-0.2 font-mono bg-ops-canvas text-ops-text-dim border border-ops-border rounded text-2xs uppercase">{{ runtimeEnvShort }}</span>
+        <span class="font-mono font-bold text-xs tracking-wider text-ops-text-bright uppercase group-hover:text-ops-blue-glow transition-colors">Aetheria</span>
       </NuxtLink>
 
       <div class="h-3.5 w-px bg-ops-border hidden sm:block" />
@@ -21,8 +20,8 @@
         <span class="text-ops-text-bright font-semibold">{{ currentUtcTime }}</span>
       </div>
 
-      <!-- Live Fleet Health (Only if real servers are provisioned) -->
-      <template v-if="authStore.isAuthenticated && serversStore.fleetSummary.totalServers > 0">
+      <!-- Live Fleet Health (Only if admin & real servers are provisioned) -->
+      <template v-if="authStore.isAdmin && serversStore.fleetSummary.totalServers > 0">
         <div class="h-3.5 w-px bg-ops-border hidden lg:block" />
         <div class="hidden lg:flex items-center gap-2 text-2xs font-mono text-ops-text-dim">
           <span>FLEET:</span>
@@ -34,9 +33,9 @@
 
     <!-- Right: Critical Incident Beacon, Notification/Discuss Dropdown, & User Account Dropdown -->
     <div class="flex items-center gap-2.5">
-      <!-- Critical Blocker Ticker (Only when authenticated) -->
+      <!-- Critical Blocker Ticker (Only for admin when authenticated) -->
       <NuxtLink
-        v-if="authStore.isAuthenticated && criticalCount > 0"
+        v-if="authStore.isAdmin && criticalCount > 0"
         to="/issues"
         class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-800 text-rose-300 text-2xs font-mono animate-pulse hover:bg-rose-900 transition"
       >

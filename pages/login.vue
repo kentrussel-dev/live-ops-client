@@ -5,7 +5,7 @@
       <div class="p-6 border-b border-ops-border bg-ops-subtle text-center space-y-1">
         <div class="flex items-center justify-center gap-2 mb-1">
           <span class="w-2.5 h-2.5 rounded-sm bg-ops-blue shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-          <span class="font-mono font-bold text-sm text-ops-text-bright tracking-wider uppercase">Aetheria Ops Console</span>
+          <span class="font-mono font-bold text-sm text-ops-text-bright tracking-wider uppercase">Aetheria</span>
         </div>
         <p class="text-xs text-ops-text-dim">
           {{ isMasterMode ? 'Root Administrator Bootstrap' : 'Operator Authentication' }}
@@ -197,7 +197,7 @@ async function handleLogin() {
 
   if (res.ok) {
     toast.success('Session Authenticated', `Welcome back, ${authStore.user?.username}!`);
-    navigateTo('/');
+    navigateTo(authStore.isAdmin ? '/' : '/discuss');
   } else {
     errorMessage.value = res.error || 'Invalid email or password.';
   }

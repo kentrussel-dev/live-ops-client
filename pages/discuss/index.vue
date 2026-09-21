@@ -647,7 +647,7 @@
               v-model="newChannelName"
               type="text"
               required
-              placeholder="e.g. Walk Online Team - Dev"
+              placeholder="e.g. Aetheria Core - Dev"
               class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans"
             />
           </div>
