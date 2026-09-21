@@ -278,6 +278,7 @@ export interface IChatChannel {
   slug: string;
   description?: string;
   isDirectMessage: boolean;
+  color?: string;
   members?: string[];
   dmTargetUser?: IUser;
   unreadCount?: number;

@@ -70,7 +70,10 @@
               >
                 <div class="flex items-center gap-2 min-w-0 flex-1">
                   <!-- Channel Image / Icon Placeholder Badge -->
-                  <div class="w-5 h-5 rounded bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-blue-glow shrink-0 overflow-hidden">
+                  <div
+                    class="w-5 h-5 rounded border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-white shrink-0 overflow-hidden"
+                    :style="{ backgroundColor: getChannelColor(ch) }"
+                  >
                     <span>{{ getChannelInitials(ch.name) }}</span>
                   </div>
                   <span class="truncate">{{ ch.name }}</span>
@@ -145,7 +148,7 @@
                     <div
                       v-else
                       class="w-5 h-5 rounded-full border border-ops-border text-3xs font-mono flex items-center justify-center text-white font-bold"
-                      :style="{ backgroundColor: getDmUser(dm)?.avatarColor || '#4F46E5' }"
+                      :style="{ backgroundColor: getAvatarColor(getDmUser(dm)) }"
                     >
                       {{ getChannelInitials(getDmDisplayName(dm)) }}
                     </div>
@@ -192,7 +195,7 @@
         <div class="flex items-center gap-2 min-w-0">
           <div
             class="w-6 h-6 rounded-full text-white text-2xs font-mono font-bold flex items-center justify-center shrink-0 border border-ops-border"
-            :style="{ backgroundColor: authStore.user?.avatarColor || '#4F46E5' }"
+            :style="{ backgroundColor: getAvatarColor(authStore.user) }"
           >
             {{ (authStore.user?.username || 'OP').slice(0, 2).toUpperCase() }}
           </div>
@@ -213,7 +216,8 @@
           <!-- Channel / DM Image Placeholder Badge in Header -->
           <div
             v-if="!chatStore.activeChannel?.isDirectMessage"
-            class="w-9 h-9 rounded-lg bg-ops-obsidian border border-ops-border flex items-center justify-center text-xs font-mono font-bold text-ops-blue-glow shadow-xs shrink-0"
+            class="w-9 h-9 rounded-lg border border-ops-border flex items-center justify-center text-xs font-mono font-bold text-white shadow-xs shrink-0"
+            :style="{ backgroundColor: getChannelColor(chatStore.activeChannel) }"
           >
             {{ getChannelInitials(chatStore.activeChannel?.name || 'CH') }}
           </div>
@@ -232,7 +236,7 @@
             <div
               v-else
               class="w-9 h-9 rounded-full border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-white group-hover:border-ops-blue transition"
-              :style="{ backgroundColor: getDmUser(chatStore.activeChannel)?.avatarColor || '#4F46E5' }"
+              :style="{ backgroundColor: getAvatarColor(getDmUser(chatStore.activeChannel)) }"
             >
               {{ getChannelInitials(getDmDisplayName(chatStore.activeChannel)) }}
             </div>
@@ -327,7 +331,7 @@
             <div
               v-else
               class="w-8 h-8 rounded-full border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-white shadow-xs group-hover/avatar:border-ops-blue transition"
-              :style="{ backgroundColor: getOperatorColor(group.sender._id) }"
+              :style="{ backgroundColor: getAvatarColor(group.sender) }"
             >
               {{ (group.sender.username || 'OP').slice(0, 2).toUpperCase() }}
             </div>
@@ -738,7 +742,7 @@
                 <!-- Avatar -->
                 <div
                   class="w-5 h-5 rounded-full border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-white shrink-0 overflow-hidden"
-                  :style="{ backgroundColor: op.avatarColor || getOperatorColor(op._id) }"
+                  :style="{ backgroundColor: getAvatarColor(op) }"
                 >
                   <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
                   <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
@@ -877,7 +881,7 @@
                 <!-- Avatar -->
                 <div
                   class="w-5 h-5 rounded-full border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-white shrink-0 overflow-hidden"
-                  :style="{ backgroundColor: op.avatarColor || getOperatorColor(op._id) }"
+                  :style="{ backgroundColor: getAvatarColor(op) }"
                 >
                   <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
                   <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
@@ -967,7 +971,8 @@
                 />
                 <div
                   v-else
-                  class="w-7 h-7 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-xs font-mono font-bold text-ops-text-bright"
+                  class="w-7 h-7 rounded-full border border-ops-border flex items-center justify-center text-xs font-mono font-bold text-white"
+                  :style="{ backgroundColor: getAvatarColor(op) }"
                 >
                   {{ op.username.slice(0, 2).toUpperCase() }}
                 </div>
@@ -1199,16 +1204,60 @@ function getChannelInitials(name: string): string {
     .toUpperCase();
 }
 
-function getOperatorColor(userId?: string): string {
-  if (!userId) return '#4F46E5';
-  const op = chatStore.operators.find((u) => u._id === userId);
-  if (op?.avatarColor) return op.avatarColor;
-  const palette = ['#4F46E5', '#7C3AED', '#DB2777', '#EA580C', '#16A34A', '#0891B2', '#DC2626', '#9333EA', '#B45309', '#0D9488'];
+const PALETTE = [
+  '#4F46E5', // Indigo
+  '#7C3AED', // Purple
+  '#DB2777', // Pink
+  '#EA580C', // Orange
+  '#16A34A', // Green
+  '#0891B2', // Cyan
+  '#DC2626', // Red
+  '#9333EA', // Violet
+  '#B45309', // Amber
+  '#0D9488', // Teal
+  '#2563EB', // Blue
+  '#059669', // Emerald
+];
+
+function stringToColor(str: string): string {
+  if (!str) return PALETTE[0];
   let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = (hash << 5) - hash + userId.charCodeAt(i);
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
   }
-  return palette[Math.abs(hash) % palette.length];
+  return PALETTE[Math.abs(hash) % PALETTE.length];
+}
+
+function getAvatarColor(userOrSender?: any): string {
+  if (!userOrSender) return PALETTE[0];
+
+  // 1. If explicit avatarColor exists on the object
+  if (userOrSender.avatarColor) return userOrSender.avatarColor;
+
+  const id = (userOrSender._id || userOrSender.id || userOrSender.userId)?.toString();
+  const username = userOrSender.username || userOrSender.senderName;
+
+  // 2. Check if operator exists in chatStore or authStore with saved avatarColor
+  if (id) {
+    const op = chatStore.operators.find((u) => u._id?.toString() === id) ||
+               authStore.operators.find((u) => u._id?.toString() === id);
+    if (op?.avatarColor) return op.avatarColor;
+  }
+  if (username) {
+    const op = chatStore.operators.find((u) => u.username === username) ||
+               authStore.operators.find((u) => u.username === username);
+    if (op?.avatarColor) return op.avatarColor;
+  }
+
+  // 3. Fallback: hash the username or id so it is 100% stable everywhere
+  const key = username || id || '';
+  return stringToColor(key);
+}
+
+function getChannelColor(channel?: any): string {
+  if (!channel) return '#2563EB';
+  if (channel.color) return channel.color;
+  return stringToColor(channel.name || channel._id || '');
 }
 
 async function handleRouteParams() {
