@@ -88,6 +88,7 @@ export const useChatStore = defineStore('chat', () => {
 
       // Update last message in channel list
       const ch = channels.value.find((c) => c._id === message.channelId);
+      const isFromMe = message.sender._id === authStore.user?._id || message.sender.username === authStore.user?.username;
       if (ch) {
         ch.lastMessage = {
           content: message.content,
@@ -95,6 +96,9 @@ export const useChatStore = defineStore('chat', () => {
           createdAt: message.createdAt,
         };
         ch.updatedAt = message.createdAt;
+        if (!isFromMe && (!activeChannel.value || activeChannel.value._id !== message.channelId)) {
+          ch.unreadCount = (ch.unreadCount || 0) + 1;
+        }
       } else {
         // If message is for a channel or DM not yet in the list, refresh channels immediately
         fetchChannels();
@@ -222,6 +226,7 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     activeChannel.value = channel;
+    channel.unreadCount = 0;
     if (channel.isDirectMessage) {
       channel.updatedAt = new Date().toISOString();
     }

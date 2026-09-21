@@ -133,7 +133,7 @@
                 :class="[
                   'w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition cursor-pointer group',
                   chatStore.activeChannel?._id === dm._id
-                    ? 'bg-ops-surface text-ops-text-bright font-semibold border-l-2 border-ops-blue'
+                    ? 'bg-ops-surface text-ops-text-bright border-l-2 border-ops-blue'
                     : 'text-ops-text-dim hover:bg-ops-surface-hover hover:text-ops-text-bright'
                 ]"
               >
@@ -160,13 +160,46 @@
                       ]"
                     />
                   </div>
-                  <span class="truncate">{{ getDmDisplayName(dm) }}</span>
+                  <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                    <!-- Chat bubble icon -->
+                    <svg
+                      :class="[
+                        'w-3.5 h-3.5 shrink-0 transition-colors',
+                        (dm.unreadCount && dm.unreadCount > 0)
+                          ? 'text-ops-blue-glow'
+                          : chatStore.activeChannel?._id === dm._id
+                            ? 'text-ops-blue'
+                            : 'text-ops-text-dim/60 group-hover:text-ops-text-dim'
+                      ]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
+                    </svg>
+                    <!-- Username: bold ONLY when there is an unread message -->
+                    <span
+                      :class="[
+                        'truncate',
+                        (dm.unreadCount && dm.unreadCount > 0)
+                          ? 'font-bold text-ops-text-bright'
+                          : 'font-normal'
+                      ]"
+                    >
+                      {{ getDmDisplayName(dm) }}
+                    </span>
+                  </div>
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0">
                   <span
-                    v-if="dm.unreadCount"
-                    class="px-1.5 py-0.2 rounded-full text-2xs font-bold bg-ops-blue text-white"
+                    v-if="dm.unreadCount && dm.unreadCount > 0"
+                    class="px-1.5 py-0.2 rounded-full text-2xs font-bold bg-ops-blue text-white shadow-xs"
                   >
                     {{ dm.unreadCount }}
                   </span>
