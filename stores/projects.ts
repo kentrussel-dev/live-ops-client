@@ -197,6 +197,78 @@ export const useProjectsStore = defineStore('projects', () => {
     }
   }
 
+  async function addCategory(categoryName: string): Promise<boolean> {
+    if (!activeProject.value) return false;
+    const toast = useToast();
+    const trimmed = categoryName.trim();
+    if (!trimmed) return false;
+
+    try {
+      const api = useApi();
+      const res = await api.post(`/projects/${activeProject.value._id}/categories`, {
+        category: trimmed,
+      });
+
+      if (res.success && res.data?.project) {
+        const idx = projects.value.findIndex((p) => p._id === activeProject.value?._id);
+        if (idx !== -1) {
+          projects.value[idx] = res.data.project;
+        }
+        toast.success('Category Added', `Category "${trimmed}" added to project.`);
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      toast.error('Failed to add category', err.message);
+      return false;
+    }
+  }
+
+  async function updateTicket(ticketId: string, payload: Partial<IIssueTicket>): Promise<boolean> {
+    const toast = useToast();
+    try {
+      const api = useApi();
+      const res = await api.put(`/issues/${ticketId}`, payload);
+
+      if (res.success && res.data?.issue) {
+        const idx = activeProjectTickets.value.findIndex((t) => t._id === ticketId);
+        if (idx !== -1) {
+          activeProjectTickets.value[idx] = res.data.issue;
+        }
+        toast.success('Task Updated', `Changes saved for [${res.data.issue.ticketKey}].`);
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      toast.error('Failed to update task', err.message);
+      return false;
+    }
+  }
+
+  async function addTicketNote(ticketId: string, noteText: string): Promise<boolean> {
+    const toast = useToast();
+    const trimmed = noteText.trim();
+    if (!trimmed) return false;
+
+    try {
+      const api = useApi();
+      const res = await api.post(`/issues/${ticketId}/notes`, { note: trimmed });
+
+      if (res.success && res.data?.issue) {
+        const idx = activeProjectTickets.value.findIndex((t) => t._id === ticketId);
+        if (idx !== -1) {
+          activeProjectTickets.value[idx] = res.data.issue;
+        }
+        toast.success('Note Logged', 'Log note recorded in task timeline.');
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      toast.error('Failed to log note', err.message);
+      return false;
+    }
+  }
+
   return {
     projects,
     activeProjectId,
@@ -212,6 +284,9 @@ export const useProjectsStore = defineStore('projects', () => {
     addColumn,
     removeColumn,
     updateColumns,
+    addCategory,
+    updateTicket,
+    addTicketNote,
     transitionTicketStatus,
     createTicket,
   };
