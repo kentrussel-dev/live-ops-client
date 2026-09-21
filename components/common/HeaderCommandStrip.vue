@@ -110,8 +110,26 @@
               ]"
             >
               <div class="flex items-start gap-2.5 min-w-0">
-                <div class="w-6 h-6 rounded bg-ops-obsidian border border-ops-border text-3xs font-mono font-bold flex items-center justify-center text-ops-blue-glow shrink-0 mt-0.5">
-                  {{ item.type === 'ticket_assigned' ? 'TASK' : item.type === 'direct_message' ? 'DM' : 'SYS' }}
+                <div class="w-6 h-6 rounded bg-ops-obsidian border border-ops-border flex items-center justify-center shrink-0 mt-0.5">
+                  <!-- ticket_assigned: clipboard/task icon -->
+                  <svg v-if="item.type === 'ticket_assigned'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1"/>
+                    <path d="m9 12 2 2 4-4"/>
+                  </svg>
+                  <!-- direct_message: chat bubble icon -->
+                  <svg v-else-if="item.type === 'direct_message'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <!-- mention: @ icon -->
+                  <svg v-else-if="item.type === 'mention'" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+                  </svg>
+                  <!-- system: bell icon -->
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-ops-text-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
                 </div>
                 <div class="min-w-0 space-y-0.5">
                   <div class="text-xs font-bold text-ops-text-bright truncate">{{ item.title }}</div>
@@ -160,7 +178,10 @@
           @click="toggleUserMenu"
           class="flex items-center gap-2 p-1 pl-2 pr-2.5 bg-ops-obsidian hover:bg-ops-surface-hover border border-ops-border rounded text-xs transition"
         >
-          <div class="w-5 h-5 rounded bg-ops-subtle border border-ops-border flex items-center justify-center font-mono font-bold text-2xs text-ops-blue-glow overflow-hidden shrink-0">
+          <div
+            class="w-5 h-5 rounded border border-ops-border flex items-center justify-center font-mono font-bold text-2xs text-white overflow-hidden shrink-0"
+            :style="{ backgroundColor: authStore.user.avatarColor || '#4F46E5' }"
+          >
             <img v-if="authStore.user.avatarUrl" :src="authStore.user.avatarUrl" :alt="authStore.user.username" class="w-full h-full object-cover" />
             <span v-else>{{ authStore.user.username.slice(0, 2).toUpperCase() }}</span>
           </div>

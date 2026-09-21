@@ -144,7 +144,8 @@
                     />
                     <div
                       v-else
-                      class="w-5 h-5 rounded-full bg-ops-surface border border-ops-border text-3xs font-mono flex items-center justify-center text-ops-text-bright font-bold"
+                      class="w-5 h-5 rounded-full border border-ops-border text-3xs font-mono flex items-center justify-center text-white font-bold"
+                      :style="{ backgroundColor: getDmUser(dm)?.avatarColor || '#4F46E5' }"
                     >
                       {{ getChannelInitials(getDmDisplayName(dm)) }}
                     </div>
@@ -189,7 +190,10 @@
         title="Click to view your operator profile"
       >
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-6 h-6 rounded-full bg-ops-blue text-white text-2xs font-mono font-bold flex items-center justify-center shrink-0">
+          <div
+            class="w-6 h-6 rounded-full text-white text-2xs font-mono font-bold flex items-center justify-center shrink-0 border border-ops-border"
+            :style="{ backgroundColor: authStore.user?.avatarColor || '#4F46E5' }"
+          >
             {{ (authStore.user?.username || 'OP').slice(0, 2).toUpperCase() }}
           </div>
           <div class="min-w-0">
@@ -227,7 +231,8 @@
             />
             <div
               v-else
-              class="w-9 h-9 rounded-full bg-ops-obsidian border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright group-hover:border-ops-blue transition"
+              class="w-9 h-9 rounded-full border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-white group-hover:border-ops-blue transition"
+              :style="{ backgroundColor: getDmUser(chatStore.activeChannel)?.avatarColor || '#4F46E5' }"
             >
               {{ getChannelInitials(getDmDisplayName(chatStore.activeChannel)) }}
             </div>
@@ -321,7 +326,8 @@
             />
             <div
               v-else
-              class="w-8 h-8 rounded-full bg-ops-surface border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-ops-text-bright shadow-xs group-hover/avatar:border-ops-blue transition"
+              class="w-8 h-8 rounded-full border border-ops-border text-xs font-mono font-bold flex items-center justify-center text-white shadow-xs group-hover/avatar:border-ops-blue transition"
+              :style="{ backgroundColor: getOperatorColor(group.sender._id) }"
             >
               {{ (group.sender.username || 'OP').slice(0, 2).toUpperCase() }}
             </div>
@@ -730,7 +736,10 @@
                 </div>
 
                 <!-- Avatar -->
-                <div class="w-5 h-5 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-text-bright shrink-0 overflow-hidden">
+                <div
+                  class="w-5 h-5 rounded-full border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-white shrink-0 overflow-hidden"
+                  :style="{ backgroundColor: op.avatarColor || getOperatorColor(op._id) }"
+                >
                   <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
                   <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
                 </div>
@@ -866,7 +875,10 @@
                 </div>
 
                 <!-- Avatar -->
-                <div class="w-5 h-5 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-text-bright shrink-0 overflow-hidden">
+                <div
+                  class="w-5 h-5 rounded-full border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-white shrink-0 overflow-hidden"
+                  :style="{ backgroundColor: op.avatarColor || getOperatorColor(op._id) }"
+                >
                   <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
                   <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
                 </div>
@@ -1185,6 +1197,18 @@ function getChannelInitials(name: string): string {
     .map((w) => w[0])
     .join('')
     .toUpperCase();
+}
+
+function getOperatorColor(userId?: string): string {
+  if (!userId) return '#4F46E5';
+  const op = chatStore.operators.find((u) => u._id === userId);
+  if (op?.avatarColor) return op.avatarColor;
+  const palette = ['#4F46E5', '#7C3AED', '#DB2777', '#EA580C', '#16A34A', '#0891B2', '#DC2626', '#9333EA', '#B45309', '#0D9488'];
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = (hash << 5) - hash + userId.charCodeAt(i);
+  }
+  return palette[Math.abs(hash) % palette.length];
 }
 
 async function handleRouteParams() {

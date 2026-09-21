@@ -73,6 +73,19 @@ export const useNotificationsStore = defineStore('notifications', () => {
   function handleIncomingNotification(notif: INotification): void {
     notifications.value.unshift(notif);
     unreadCount.value += 1;
+
+    // Play sound only for DMs and only when user is NOT on this tab
+    if (
+      notif.type === 'direct_message' &&
+      typeof document !== 'undefined' &&
+      !document.hasFocus()
+    ) {
+      try {
+        const audio = new Audio('/notification.mp3');
+        audio.volume = 0.7;
+        audio.play().catch(() => {});
+      } catch (_) {}
+    }
   }
 
   return {

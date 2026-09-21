@@ -30,6 +30,7 @@ export interface IUser {
   bio?: string;
   statusMessage?: string;
   avatarUrl?: string;
+  avatarColor?: string;
   lastLoginAt?: string;
   createdAt: string;
   updatedAt: string;

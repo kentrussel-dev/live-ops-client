@@ -28,7 +28,8 @@
               />
               <div
                 v-else
-                class="w-20 h-20 rounded-xl bg-ops-obsidian border-2 border-ops-border flex items-center justify-center text-xl font-mono font-bold text-ops-text-bright shadow-lg group-hover:border-ops-blue transition"
+                class="w-20 h-20 rounded-xl border-2 border-ops-border flex items-center justify-center text-xl font-mono font-bold text-white shadow-lg group-hover:border-ops-blue transition"
+                :style="{ backgroundColor: authStore.viewedProfile.avatarColor || '#4F46E5' }"
               >
                 {{ (authStore.viewedProfile.username || 'OP').slice(0, 2).toUpperCase() }}
               </div>

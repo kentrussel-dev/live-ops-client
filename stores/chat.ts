@@ -141,9 +141,26 @@ export const useChatStore = defineStore('chat', () => {
       }
     });
 
+    socket.on('chat:dm_channel_created', (channel: IChatChannel) => {
+      const idx = channels.value.findIndex((c) => c._id === channel._id);
+      if (idx === -1) {
+        channels.value.unshift(channel);
+      } else {
+        channels.value[idx] = { ...channels.value[idx], ...channel };
+      }
+    });
+
     socket.on('notification:new', (notif) => {
       const notifStore = useNotificationsStore();
       notifStore.handleIncomingNotification(notif);
+
+      // If this is a direct_message notification and we don't have the channel yet, fetch channels to ensure sidebar is in sync
+      if (notif.type === 'direct_message') {
+        const channelExists = channels.value.some((c) => c._id === notif.entityId);
+        if (!channelExists) {
+          fetchChannels();
+        }
+      }
     });
 
     socket.on('servers:telemetry_tick', (updatedServers) => {

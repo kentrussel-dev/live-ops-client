@@ -79,15 +79,38 @@
           <div class="shrink-0 pt-0.5">
             <div
               :class="[
-                'w-8 h-8 rounded border flex items-center justify-center text-xs font-mono font-bold',
-                notif.type === 'ticket_assigned' ? 'bg-amber-950/60 border-amber-800 text-amber-300' :
-                notif.type === 'mention' ? 'bg-indigo-950/60 border-indigo-800 text-indigo-300' :
-                notif.type === 'status_change' ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300' :
-                notif.type === 'direct_message' ? 'bg-blue-950/60 border-blue-800 text-blue-300' :
-                'bg-ops-obsidian border-ops-border text-ops-text-dim'
+                'w-8 h-8 rounded border flex items-center justify-center',
+                notif.type === 'ticket_assigned' ? 'bg-amber-950/60 border-amber-800' :
+                notif.type === 'mention' ? 'bg-indigo-950/60 border-indigo-800' :
+                notif.type === 'status_change' ? 'bg-emerald-950/60 border-emerald-800' :
+                notif.type === 'direct_message' ? 'bg-blue-950/60 border-blue-800' :
+                'bg-ops-obsidian border-ops-border'
               ]"
             >
-              {{ getNotificationTypeBadge(notif.type) }}
+              <!-- ticket_assigned: clipboard/task icon -->
+              <svg v-if="notif.type === 'ticket_assigned'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              <!-- direct_message: chat bubble icon -->
+              <svg v-else-if="notif.type === 'direct_message'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <!-- mention: @ icon -->
+              <svg v-else-if="notif.type === 'mention'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+              </svg>
+              <!-- status_change: check-circle icon -->
+              <svg v-else-if="notif.type === 'status_change'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <path d="m9 11 3 3L22 4"/>
+              </svg>
+              <!-- system_alert / fallback: bell icon -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-ops-text-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
             </div>
           </div>
 
