@@ -271,9 +271,23 @@
             <span>👤</span>
             <span>View Profile</span>
           </button>
-          <span v-else class="px-2 py-0.5 bg-ops-obsidian rounded border border-ops-border text-2xs">
-            Public Channel
-          </span>
+          <template v-else>
+            <span v-if="activeChannelMembersCount > 0" class="px-2 py-0.5 bg-ops-obsidian rounded border border-ops-border text-2xs text-ops-text-dim">
+              👥 {{ activeChannelMembersCount }} members
+            </span>
+            <button
+              v-if="canEditActiveChannel"
+              @click="openEditChannelModal"
+              class="px-2.5 py-1 bg-ops-obsidian hover:bg-ops-surface border border-ops-border hover:border-ops-blue text-ops-blue-glow rounded text-2xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Edit channel details or manage members"
+            >
+              <span>⚙️</span>
+              <span>Edit Channel</span>
+            </button>
+            <span v-else class="px-2 py-0.5 bg-ops-obsidian rounded border border-ops-border text-2xs">
+              Public Channel
+            </span>
+          </template>
         </div>
       </div>
 
@@ -758,6 +772,146 @@
       </div>
     </div>
 
+    <!-- Modal 1b: Edit Channel Modal -->
+    <div
+      v-if="showEditChannelModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+    >
+      <div class="w-full max-w-md bg-ops-surface border border-ops-border rounded-lg shadow-2xl overflow-hidden font-sans text-xs">
+        <div class="p-4 border-b border-ops-border bg-ops-subtle flex items-center justify-between">
+          <div>
+            <h3 class="font-mono font-bold text-sm text-ops-text-bright">Edit Channel Settings</h3>
+            <p class="text-2xs text-ops-text-dim mt-0.5">Created by <span class="font-mono text-ops-blue-glow font-semibold">{{ activeChannelCreatorName }}</span></p>
+          </div>
+          <button @click="showEditChannelModal = false" class="text-ops-text-dim hover:text-ops-text-bright font-mono">✕</button>
+        </div>
+
+        <form @submit.prevent="handleEditChannelSubmit" class="p-5 space-y-3.5">
+          <div>
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Channel Name</label>
+            <input
+              v-model="editChannelName"
+              type="text"
+              required
+              placeholder="e.g. Aetheria Core - Dev"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans"
+            />
+          </div>
+
+          <div>
+            <label class="block text-2xs font-mono uppercase text-ops-text-dim mb-1">Description / Topic</label>
+            <input
+              v-model="editChannelDescription"
+              type="text"
+              placeholder="Channel topic or sprint goals"
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-2 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans"
+            />
+          </div>
+
+          <!-- Member Management: Add/Remove Members -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-2xs font-mono uppercase text-ops-text-dim">Manage Members</label>
+              <span class="text-2xs font-mono text-ops-blue-glow">{{ editSelectedMembers.length }} member(s)</span>
+            </div>
+
+            <!-- Current members chips with remove button -->
+            <div v-if="editSelectedMembers.length > 0" class="flex flex-wrap gap-1.5 mb-2 max-h-24 overflow-y-auto p-1 bg-ops-obsidian/50 rounded border border-ops-border/50">
+              <span
+                v-for="memberId in editSelectedMembers"
+                :key="memberId"
+                class="flex items-center gap-1.5 px-2 py-0.5 bg-ops-blue/20 border border-ops-blue/40 rounded-full text-2xs font-mono text-ops-blue-glow"
+              >
+                <span>{{ getMemberNameById(memberId) }}</span>
+                <button
+                  type="button"
+                  @click="removeEditMember(memberId)"
+                  class="hover:text-rose-400 font-bold leading-none"
+                  title="Remove from channel"
+                >✕</button>
+              </span>
+            </div>
+
+            <!-- Search operators to add or remove -->
+            <input
+              v-model="editChannelMemberSearch"
+              type="text"
+              placeholder="Search operators to add or remove..."
+              class="w-full bg-ops-obsidian border border-ops-border rounded px-2.5 py-1.5 text-xs text-ops-text-bright outline-none focus:border-ops-blue font-sans mb-2"
+            />
+
+            <!-- All operators checklist -->
+            <div class="max-h-44 overflow-y-auto space-y-1 border border-ops-border rounded bg-ops-obsidian p-1.5">
+              <div
+                v-for="op in editChannelMemberPickerList"
+                :key="op._id"
+                @click="toggleEditChannelMember(op._id)"
+                :class="[
+                  'flex items-center gap-2.5 px-2 py-1.5 rounded cursor-pointer transition',
+                  editSelectedMembers.includes(op._id)
+                    ? 'bg-ops-blue/20 border border-ops-blue/30'
+                    : 'hover:bg-ops-surface-hover border border-transparent'
+                ]"
+              >
+                <!-- Checkbox -->
+                <div :class="[
+                  'w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition',
+                  editSelectedMembers.includes(op._id)
+                    ? 'bg-ops-blue border-ops-blue text-white'
+                    : 'border-ops-border'
+                ]">
+                  <svg v-if="editSelectedMembers.includes(op._id)" class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M2 6l3 3 5-5"/>
+                  </svg>
+                </div>
+
+                <!-- Avatar -->
+                <div class="w-5 h-5 rounded-full bg-ops-surface border border-ops-border flex items-center justify-center text-3xs font-mono font-bold text-ops-text-bright shrink-0 overflow-hidden">
+                  <img v-if="op.avatarUrl" :src="op.avatarUrl" :alt="op.username" class="w-full h-full object-cover" />
+                  <span v-else>{{ (op.username || '?').slice(0, 2).toUpperCase() }}</span>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="font-semibold text-ops-text-bright truncate">{{ op.username }}</div>
+                  <div class="text-2xs text-ops-text-dim truncate">{{ op.position || op.department || op.role }}</div>
+                </div>
+
+                <span :class="[
+                  'w-1.5 h-1.5 rounded-full shrink-0',
+                  chatStore.isUserOnline(op._id) ? 'bg-emerald-500' : 'bg-slate-500'
+                ]" />
+              </div>
+
+              <div v-if="editChannelMemberPickerList.length === 0" class="text-center py-4 text-ops-text-dim font-mono text-2xs">
+                No operators found
+              </div>
+            </div>
+            <p class="text-2xs text-ops-text-dim mt-1.5">
+              Click any operator to toggle their membership. Checkmarked operators have access to this channel.
+            </p>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-4 border-t border-ops-border">
+            <button
+              type="button"
+              @click="showEditChannelModal = false"
+              class="px-3 py-1.5 bg-ops-obsidian hover:bg-ops-surface border border-ops-border text-ops-text-dim rounded font-mono text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="isSavingChannel || !editChannelName.trim()"
+              class="px-4 py-1.5 bg-ops-blue hover:bg-ops-blue-glow disabled:opacity-50 text-white font-mono font-bold text-xs rounded transition flex items-center gap-1.5"
+            >
+              <span v-if="isSavingChannel">Saving...</span>
+              <span v-else>Save Changes</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
 
     <!-- Modal 2: Start Direct Message Modal -->
     <div
@@ -842,12 +996,45 @@ const messageInput = ref('');
 const messageInputRef = ref<HTMLTextAreaElement | null>(null);
 const messagesContainer = ref<HTMLElement | null>(null);
 const showCreateChannelModal = ref(false);
+const showEditChannelModal = ref(false);
 const showStartDmModal = ref(false);
 const operatorSearchQuery = ref('');
 const newChannelName = ref('');
 const newChannelDescription = ref('');
 const newChannelMemberSearch = ref('');
 const selectedChannelMembers = ref<string[]>([]);
+
+// Edit channel state
+const editChannelName = ref('');
+const editChannelDescription = ref('');
+const editChannelMemberSearch = ref('');
+const editSelectedMembers = ref<string[]>([]);
+const isSavingChannel = ref(false);
+
+const canEditActiveChannel = computed(() => {
+  const ch = chatStore.activeChannel;
+  if (!ch || ch.isDirectMessage) return false;
+  if (authStore.user?.role === 'admin') return true;
+  const currentUsername = authStore.user?.username;
+  const currentUserId = authStore.user?._id?.toString();
+  return (
+    ch.createdBy === currentUsername ||
+    ch.createdBy === currentUserId ||
+    (ch.members && ch.members.some((m) => m?.toString() === currentUserId))
+  );
+});
+
+const activeChannelMembersCount = computed(() => {
+  const ch = chatStore.activeChannel;
+  if (!ch || ch.isDirectMessage) return 0;
+  return ch.members?.length || 0;
+});
+
+const activeChannelCreatorName = computed(() => {
+  const ch = chatStore.activeChannel;
+  if (!ch) return '';
+  return ch.createdBy || 'root_admin';
+});
 const activeEmojiPickerKey = ref<string | null>(null);
 const showComposerEmojiPicker = ref(false);
 const activeReplyTarget = ref<{
@@ -1247,6 +1434,85 @@ async function handleCreateChannelSubmit() {
     selectedChannelMembers.value = [];
     newChannelMemberSearch.value = '';
     scrollToBottom();
+  }
+}
+
+// -------------------------------------------------------------
+// Channel Editing Handlers
+// -------------------------------------------------------------
+function openEditChannelModal() {
+  if (!chatStore.activeChannel) return;
+  chatStore.fetchOperators();
+  const ch = chatStore.activeChannel;
+  editChannelName.value = ch.name || '';
+  editChannelDescription.value = ch.description || '';
+  editChannelMemberSearch.value = '';
+
+  // Extract member IDs as strings
+  const members = ch.members || [];
+  editSelectedMembers.value = members.map((m: any) =>
+    typeof m === 'object' && m !== null ? (m._id || m).toString() : m.toString()
+  );
+
+  showEditChannelModal.value = true;
+}
+
+const editChannelMemberPickerList = computed(() => {
+  const list = (chatStore.operators.length > 0 ? chatStore.operators : authStore.operators) || [];
+  return list.filter((u) => {
+    if (!u) return false;
+    if (editChannelMemberSearch.value.trim()) {
+      const q = editChannelMemberSearch.value.toLowerCase();
+      const uName = (u.username || '').toLowerCase();
+      return (
+        uName.includes(q) ||
+        (u.department && u.department.toLowerCase().includes(q)) ||
+        (u.position && u.position.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+});
+
+function getMemberNameById(memberId: string): string {
+  const op = chatStore.operators.find((u) => u._id?.toString() === memberId.toString());
+  if (op) return op.username;
+  if (authStore.user?._id?.toString() === memberId.toString()) return authStore.user.username;
+  return memberId;
+}
+
+function toggleEditChannelMember(opId: string) {
+  const idStr = opId.toString();
+  if (editSelectedMembers.value.includes(idStr)) {
+    editSelectedMembers.value = editSelectedMembers.value.filter((id) => id !== idStr);
+  } else {
+    editSelectedMembers.value.push(idStr);
+  }
+}
+
+function removeEditMember(memberId: string) {
+  const idStr = memberId.toString();
+  editSelectedMembers.value = editSelectedMembers.value.filter((id) => id !== idStr);
+}
+
+async function handleEditChannelSubmit() {
+  if (!chatStore.activeChannel || !editChannelName.value.trim()) return;
+  isSavingChannel.value = true;
+
+  try {
+    const ok = await chatStore.updateChannel(chatStore.activeChannel._id, {
+      name: editChannelName.value.trim(),
+      description: editChannelDescription.value.trim(),
+      members: editSelectedMembers.value,
+    });
+
+    if (ok) {
+      showEditChannelModal.value = false;
+    }
+  } catch (err) {
+    console.error('[handleEditChannelSubmit Error]:', err);
+  } finally {
+    isSavingChannel.value = false;
   }
 }
 </script>

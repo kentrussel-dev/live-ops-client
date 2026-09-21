@@ -98,6 +98,16 @@ export const useChatStore = defineStore('chat', () => {
       }
     });
 
+    socket.on('channel:updated', (updatedChannel: IChatChannel) => {
+      const idx = channels.value.findIndex((c) => c._id === updatedChannel._id);
+      if (idx !== -1) {
+        channels.value[idx] = { ...channels.value[idx], ...updatedChannel };
+      }
+      if (activeChannel.value && activeChannel.value._id === updatedChannel._id) {
+        activeChannel.value = { ...activeChannel.value, ...updatedChannel };
+      }
+    });
+
     socket.on('chat:reaction_updated', ({ messageId, reactions }) => {
       const msg = messages.value.find((m) => m._id === messageId);
       if (msg) {
@@ -348,6 +358,31 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function updateChannel(
+    channelId: string,
+    payload: { name?: string; description?: string; members?: string[] }
+  ): Promise<boolean> {
+    try {
+      const api = useApi();
+      const res = await api.patch(`/chat/channels/${channelId}`, payload);
+      if (res.success && res.data?.channel) {
+        const updated = res.data.channel;
+        const idx = channels.value.findIndex((c) => c._id === channelId);
+        if (idx !== -1) {
+          channels.value[idx] = { ...channels.value[idx], ...updated };
+        }
+        if (activeChannel.value?._id === channelId) {
+          activeChannel.value = { ...activeChannel.value, ...updated };
+        }
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('[updateChannel Error]:', err);
+      return false;
+    }
+  }
+
   async function toggleReaction(messageId: string, reaction: string): Promise<void> {
     try {
       const api = useApi();
@@ -394,6 +429,7 @@ export const useChatStore = defineStore('chat', () => {
     removeDirectMessage,
     removeChannel,
     createChannel,
+    updateChannel,
     toggleReaction,
     isUserOnline,
   };
